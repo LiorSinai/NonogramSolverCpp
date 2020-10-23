@@ -4,10 +4,12 @@
 void TestTypes::assert_test(bool condition, const char* code, const char* file, size_t line)
 {   
     if (!condition){
-        printf("...FAILED [%s] at line %d in file %s\n", code, line, file);
+        printf("...FAILED [%s] at line %d in file %s", code, line, file);
+        std::cout<<std::endl;
     }
     else{
-        printf("...ok\n");
+        printf("...ok");
+        std::cout<<std::endl;
     }
     //How to send this result to the TestSuite???
 }
@@ -36,20 +38,22 @@ std::cout <<"\n---------------\nRunning tests" << "\n";
         UnitTest* test = *it;
         ++nTests;
         try{
-            std::cout <<"Test " << test->get_name() <<"\n";
+            std::cout <<"Test " << test->get_name() << std::endl;
             if (test->setUp()) {
             try {
                 test->run();
                 ++pass_count;
             }
             catch(...) {
-                printf("Error occurred while running test\n");
+                printf("Error occurred while running test");
+                std::cout<<std::endl;
                 ++fail_count;
                 continue;
             }
             }
             else {
-                printf("setup failed\n");
+                printf("setup failed");
+                std::cout<<std::endl;
             }
         }
         catch (std::exception& e) {
@@ -59,5 +63,6 @@ std::cout <<"\n---------------\nRunning tests" << "\n";
             printf("Unexpected error");
         }
     }
-    printf("ran %d tests, %d passed, %d failed", nTests, pass_count, fail_count);
+    printf("ran %d tests, %d completed, %d aborted", nTests, pass_count, fail_count);
+    std::cout<<std::endl;
 }

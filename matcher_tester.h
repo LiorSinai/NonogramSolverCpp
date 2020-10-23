@@ -52,3 +52,16 @@ public:
     VeryLong() : NFA_test("VeryLong"){}
     void run();
 };
+
+
+class NoPattern: public NFA_test{
+public:
+    NoPattern() : NFA_test("NoPattern"){}
+    void run();
+};
+
+class NoLine: public NFA_test{
+public:
+    NoLine() : NFA_test("NoLine"){}
+    void run();
+};

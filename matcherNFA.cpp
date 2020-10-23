@@ -55,8 +55,10 @@ void NonDeterministicFiniteAutomation::compile(std::vector<int> pattern_)
     
     // match an empty pattern
     if (pattern.size() == 0){
-        end.is_end = true;
-        start.transitions.push_back(1);
+        states[1].is_end = true;
+        states[1].symbol = BLANK; //
+        states[0].transitions.push_back(1);
+        is_compiled = true;
         return;
     }
 

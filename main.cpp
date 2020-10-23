@@ -45,21 +45,24 @@ void nfa_tester(){
     LongMiddle* t3 = new LongMiddle();
     WorstCase* t4 = new WorstCase();
     VeryLong* t5 = new VeryLong();
+    NoPattern* t6 = new NoPattern();
+    NoLine* t7 = new NoLine();
 
     nfa_tester->addTest(t1);
     nfa_tester->addTest(t2);
     nfa_tester->addTest(t3);
     nfa_tester->addTest(t4);
     nfa_tester->addTest(t5);
+    nfa_tester->addTest(t6);
+    nfa_tester->addTest(t7);
     nfa_tester->run();
     
-    delete t1, t2, t3, t4, t5;
+    delete t1, t2, t3, t4, t5, t6;
 }
 
 int main()
 {   
    //nonogram_basics();
-
    nfa_tester();
 
     return 0;

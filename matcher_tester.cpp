@@ -149,3 +149,25 @@ void VeryLong::run(){
     m = this->nfa->find_match(line);
     IS_TRUE(m.match == result);
 }
+
+void NoPattern::run(){
+    pattern = {};
+    line   = {3, 3, 3, 3};
+    result = {BLANK, BLANK, BLANK, BLANK}; 
+    this->nfa->compile(pattern);
+    m = this->nfa->find_match(line);
+    IS_TRUE(m.match == result);
+
+    line   = {3, 3, 1, 3};
+    m = this->nfa->find_match(line);
+    IS_FALSE(m.is_match);
+}
+
+void NoLine::run(){
+    pattern = {3, 2, 1};
+    line   = {};
+    result = {BLANK, BLANK, BLACK, BLANK}; 
+    this->nfa->compile(pattern);
+    m = this->nfa->find_match(line);
+    IS_FALSE(m.is_match);
+}
