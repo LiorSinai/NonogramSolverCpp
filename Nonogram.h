@@ -1,7 +1,7 @@
 /*
  *  Created on: 22 October, 2020
  *      Author: Lior Sinai
- * Description: A nonogram class
+ * Description: A nonogram class. See https://en.wikipedia.org/wiki/Nonogram 
  */
 
 
@@ -9,7 +9,6 @@
 #define NONOGRAM_H
 
 #include <vector>
-#include <tuple>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -34,7 +33,6 @@ public:
 	/// Constructor 
 	Nonogram(std::vector<std::vector<int>> runs_row_, std::vector<std::vector<int>> runs_col_);
 
-
     // setters and getters
     int get_n_rows(){ return n_rows;} 
     int get_n_cols(){ return n_cols;}  
@@ -49,11 +47,9 @@ public:
     std::vector<int> get_sequence(std::vector<int> line);
     bool is_valid_line(std::vector<int> line, std::vector<int> target_runs);
     bool is_valid_grid(std::vector<std::vector<int>> &grid);
-    
-
-
 };
 
 enum cell_types {BOX=1, BLANK=2, EITHER=3, DUMMY=4};
+enum cell_types2 {BLACK=1, WHITE=2, EITHER_=3};
 
 #endif // NONOGRAM_H

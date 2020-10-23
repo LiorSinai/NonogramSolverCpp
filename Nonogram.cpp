@@ -54,11 +54,13 @@ std::vector<std::vector<std::string>> Nonogram::make_box(std::vector<std::vector
             if (j >= row_max_length && runs_col[j - row_max_length].size() >= col_max_length - i){
                 auto runs = runs_col[j - row_max_length];
                 int r = runs[runs.size() - (col_max_length - i)];
-                row.push_back(std::to_string(r)); 
+                std::string s = std::to_string(r);
+                std::string s1 = std::string(2 - s.length(), '0') + s; //pad with zeros
+                row.push_back(s1); 
             }
             else{
                 std::string s (1, symbols[DUMMY]);
-                row.push_back(s); // push back a dummy variable
+                row.push_back(s + " "); // push back a dummy variable
             }
         }
         box.push_back(row);
@@ -68,16 +70,18 @@ std::vector<std::vector<std::string>> Nonogram::make_box(std::vector<std::vector
         for (int j{0}; j < row_max_length; ++j){
             if (runs_row[i].size() >= row_max_length - j){
                 int r = runs_row[i][runs_row[i].size() - (row_max_length - j)];
-                row.push_back(std::to_string(r));
+                std::string s = std::to_string(r);
+                std::string s1 = std::string(2 - s.length(), '0') + s; //pad with zeros
+                row.push_back(s1); 
             } 
             else{
                 std::string s (1, symbols[DUMMY]);
-                row.push_back(s); // push back a dummy variable
+                row.push_back(s + " "); // push back a dummy variable
             }            
         }
         for (int j{0}; j < n_cols; ++j){
             std::string s (1, symbols[grid[i][j]]);
-            row.push_back(s);
+            row.push_back(s + " ");
         }
         box.push_back(row);
     }
@@ -107,7 +111,7 @@ void Nonogram::show_grid(std::vector<std::vector<int>> &grid, bool show_instruct
     }
 
     if (show_instructions){
-        std::vector<std::vector<std::string>> box = make_box(grid);
+        std::vector<std::vector<std::string>> box = make_box(grid, symbols);
         for (int i{0}; i< box.size(); i++){
             for (int j{0}; j < box[0].size(); j++){
                 std::cout << box[i][j] << "  ";
