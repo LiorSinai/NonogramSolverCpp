@@ -1,8 +1,12 @@
 #include <iostream>
+#include <chrono>
+using namespace std::chrono; 
 
 #include "Nonogram.h"
 #include "matcherNFA.h"
 #include "matcher_tester.h"
+#include "solver_fast.h"
+#include "non_file_reader.h"
 
 
 void nonogram_basics()
@@ -30,10 +34,13 @@ void nonogram_basics()
         };
 
 
-    std::unique_ptr<Nonogram> puzzle = std::make_unique<Nonogram>(r_rows, r_cols);
-    puzzle->set_grid(solution);
+    std::shared_ptr<Nonogram> puzzle = std::make_shared<Nonogram>(r_rows, r_cols);
+    Nonogram::matrix2D solution2 = solve_fast(puzzle, false);
 
-    puzzle->show_grid(puzzle->get_grid(), true, true);
+    //puzzle->set_grid(solution);
+    puzzle->set_grid(solution2);
+
+    puzzle->show_grid(puzzle->get_grid(), true, false);
     std::cout << "Is complete: " << puzzle->is_valid_grid(puzzle->get_grid()) << std::endl;
 }
 
@@ -47,6 +54,7 @@ void nfa_tester(){
     VeryLong* t5 = new VeryLong();
     NoPattern* t6 = new NoPattern();
     NoLine* t7 = new NoLine();
+    ProblemRun* t8 = new ProblemRun();
 
     nfa_tester->addTest(t1);
     nfa_tester->addTest(t2);
@@ -55,15 +63,35 @@ void nfa_tester(){
     nfa_tester->addTest(t5);
     nfa_tester->addTest(t6);
     nfa_tester->addTest(t7);
+    nfa_tester->addTest(t8);
     nfa_tester->run();
     
-    delete t1, t2, t3, t4, t5, t6;
+    delete t1, t2, t3, t4, t5, t6, t7, t8;
+}
+
+void solve_nonogram(std::vector<std::vector<int>> run_rows, std::vector<std::vector<int>> run_col)
+{   
+    std::shared_ptr<Nonogram> puzzle = std::make_shared<Nonogram>(run_rows, run_col);
+
+    auto start = high_resolution_clock::now(); 
+    Nonogram::matrix2D solution = solve_fast(puzzle, false);
+    auto stop = high_resolution_clock::now(); 
+    auto duration = duration_cast<milliseconds>(stop - start); 
+    std::cout << "time to solve: " << (float)duration.count()/1000 << "s" << std::endl; 
+
+    puzzle->set_grid(solution);
+
+    puzzle->show_grid(puzzle->get_grid(), false, false);
+    std::cout << "Is complete: " << puzzle->is_valid_grid(puzzle->get_grid()) << std::endl;
+
 }
 
 int main()
 {   
    //nonogram_basics();
-   nfa_tester();
+   //nfa_tester();
+   Runs r = read_non_file("puzzles/bear.txt");
+   solve_nonogram(r.runs_row, r.runs_col);
 
     return 0;
 }

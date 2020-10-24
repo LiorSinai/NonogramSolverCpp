@@ -123,20 +123,42 @@ void LongMiddle::run(){
 }
 
 void WorstCase::run(){
-    pattern = {2, 5, 3, 1};
+    pattern = {2, 5, 3, 2};
     line = {};
     for (int i{0}; i < 30; ++i){
         line.push_back(EITHER);
     }
     line.push_back(BLACK); // one black at the end
     result = {BLACK, BLACK, WHITE, BLACK, BLACK, BLACK, BLACK, BLACK, WHITE, BLACK, BLACK, BLACK};
-    for (int i{12}; i < 30; ++i){
+    for (int i{12}; i < 29; ++i){
         result.push_back(WHITE);
     } 
+    line[0] = BLACK;
+    result.push_back(BLACK);
     result.push_back(BLACK);
 
     this->nfa->compile(pattern);
     m = this->nfa->find_match(line);
+    IS_TRUE(m.match == result);
+
+    pattern = {4, 1, 3, 4, 1, 1, 3};
+    std::vector<int> line2 (40, EITHER);
+    line2[0] = BLACK;
+    line2[1] = BLACK;
+    line2[2] = BLACK;
+    line2[3] = BLACK;
+    //
+    line2[38] = BLACK;
+    line2[39] = BLACK;
+    result = {BLACK, BLACK, BLACK, BLACK, WHITE, BLACK, WHITE, BLACK, BLACK, BLACK, WHITE, BLACK, BLACK, BLACK, BLACK, WHITE, BLACK, WHITE, BLACK};
+    for (int i = 19; i < 37; i ++){
+        result.push_back(WHITE);
+    }
+    result.push_back(BLACK);
+    result.push_back(BLACK);
+    result.push_back(BLACK);
+    this->nfa->compile(pattern);
+    m = this->nfa->find_match(line2);
     IS_TRUE(m.match == result);
 }
 
@@ -170,4 +192,27 @@ void NoLine::run(){
     this->nfa->compile(pattern);
     m = this->nfa->find_match(line);
     IS_FALSE(m.is_match);
+}
+
+void ProblemRun::run(){
+    pattern = {4, 2, 1, 3, 1, 3};
+    std::vector<int> line2 (40, EITHER);
+    line2[0] = BLACK;
+    line2[1] = BLACK;
+    line2[2] = BLACK;
+    line2[3] = BLACK;
+    line2[10] = BLACK;
+    line2[38] = BLACK;
+    line2[39] = BLACK;
+    result = {BLACK, BLACK, BLACK, BLACK, WHITE, BLACK, BLACK, WHITE, BLACK, WHITE, BLACK, BLACK, BLACK, WHITE, BLACK};
+    for (int i = 14; i < 36; i ++){
+        result.push_back(WHITE);
+    }
+    result.push_back(BLACK);
+    result.push_back(BLACK);
+    result.push_back(BLACK);
+
+    this->nfa->compile(pattern);
+    m = this->nfa->find_match(line2);
+    IS_TRUE(m.match == result);
 }

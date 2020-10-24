@@ -22,7 +22,7 @@ Nonogram::Nonogram(std::vector<std::vector<int>> runs_row_, std::vector<std::vec
     }
 }
 
-std::vector<int> Nonogram::get_column(std::vector<std::vector<int>> grid, int j){
+std::vector<int> Nonogram::get_column(std::vector<std::vector<int>>& grid, int j){
     std::vector<int> column;
     for (int i{0}; i < n_rows; i++){
         column.push_back(grid[i][j]);
@@ -41,7 +41,7 @@ int max_length (std::vector<std::vector<int>> array){
 }
 
 
-std::vector<std::vector<std::string>> Nonogram::make_box(std::vector<std::vector<int>> grid, std::string symbols)
+std::vector<std::vector<std::string>> Nonogram::make_box(std::vector<std::vector<int>>& grid, std::string symbols)
 {   
     /* make a box which includes the instructions for the Nonogram */
     std::vector<std::vector<std::string>> box;
@@ -50,7 +50,7 @@ std::vector<std::vector<std::string>> Nonogram::make_box(std::vector<std::vector
 
     for (int i{0}; i < col_max_length; ++i){
         std::vector<std::string> row;
-        for (int j{0}; j < row_max_length + n_cols -1; ++j){
+        for (int j{0}; j < row_max_length + n_cols; ++j){
             if (j >= row_max_length && runs_col[j - row_max_length].size() >= col_max_length - i){
                 auto runs = runs_col[j - row_max_length];
                 int r = runs[runs.size() - (col_max_length - i)];
@@ -90,7 +90,7 @@ std::vector<std::vector<std::string>> Nonogram::make_box(std::vector<std::vector
     return box;
 }
 
-void Nonogram::show_grid(std::vector<std::vector<int>> &grid, bool show_instructions, bool to_file, std::string symbols)
+void Nonogram::show_grid(matrix2D &grid, bool show_instructions, bool to_file, std::string symbols)
 {    
     /* Print nonogram to screen and possible a file as well*/
     std::ofstream outfile;
@@ -146,7 +146,7 @@ void Nonogram::show_grid(std::vector<std::vector<int>> &grid, bool show_instruct
 }
 
 
-std::vector<int> Nonogram::get_sequence(std::vector<int> line){
+std::vector<int> Nonogram::get_sequence(std::vector<int>& line){
     std::vector<int> sequence;
     bool on_blank = true;
     for (int cell: line){
@@ -165,12 +165,12 @@ std::vector<int> Nonogram::get_sequence(std::vector<int> line){
 }
 
 
-bool Nonogram::is_valid_line(std::vector<int> line, std::vector<int> target_runs){
+bool Nonogram::is_valid_line(std::vector<int>& line, std::vector<int>& target_runs){
     std::vector<int> sequence = get_sequence(line);
     return sequence == target_runs;
 }
 
-bool Nonogram::is_valid_grid(std::vector<std::vector<int>> &grid)
+bool Nonogram::is_valid_grid(matrix2D &grid)
 {
     for (int i{0}; i < n_rows; i++){
         if (!is_valid_line(grid[i], runs_row[i])){

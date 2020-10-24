@@ -65,3 +65,10 @@ public:
     NoLine() : NFA_test("NoLine"){}
     void run();
 };
+
+class ProblemRun: public NFA_test{
+public:
+    /* initial versions of the matcher failed on this*/
+    ProblemRun() : NFA_test("ProblemRun"){}
+    void run();
+};
