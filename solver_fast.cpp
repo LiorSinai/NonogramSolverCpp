@@ -10,17 +10,14 @@
 #include "solver_fast.h"
 
 
-Nonogram::matrix2D solve_fast(std::shared_ptr<Nonogram> puzzle, bool make_guess=true){
-    return solve_fast_(puzzle->get_grid(), puzzle, make_guess);
+Nonogram::matrix2D NonogramSolver::solve_fast(){
+    return this->solve_fast_(puzzle->get_grid(), make_guess);
 }
 
-Nonogram::matrix2D solve_fast_(Nonogram::matrix2D grid, std::shared_ptr<Nonogram> puzzle, bool make_guess, 
-                               std::set<int> rows_to_edit, std::set<int> columns_to_edit){
+Nonogram::matrix2D NonogramSolver::solve_fast_(
+    Nonogram::matrix2D grid, bool make_guess, 
+    std::set<int> rows_to_edit, std::set<int> columns_to_edit){
     // extract values from Nonogram object
-    int n_rows = puzzle->get_n_rows();
-    int n_cols = puzzle->get_n_cols();
-    std::vector<std::vector<int>> runs_row = puzzle->get_runs_row();
-    std::vector<std::vector<int>> runs_col = puzzle->get_runs_col();
 
     //initialise
     if (rows_to_edit.empty() && columns_to_edit.empty()){
@@ -29,19 +26,18 @@ Nonogram::matrix2D solve_fast_(Nonogram::matrix2D grid, std::shared_ptr<Nonogram
         }
 
         for (int i{0}; i < n_rows; i++){
-            fix_row(grid, runs_row[i], columns_to_edit, i);
+            fix_row(grid, columns_to_edit, i);
         }
-    }
-
+    }  
     // constraint propogation
     int sweeps{1};
     while (!columns_to_edit.empty()){
         for (int j: columns_to_edit){
-            fix_col(grid, runs_col[j], rows_to_edit, j);
+            fix_col(grid, rows_to_edit, j);
         }
         columns_to_edit.clear();
         for (int i: rows_to_edit){
-            fix_row(grid, runs_row[i], columns_to_edit, i);
+            fix_row(grid,columns_to_edit,  i);
         }
         rows_to_edit.clear();
         sweeps += 2;
@@ -51,10 +47,16 @@ Nonogram::matrix2D solve_fast_(Nonogram::matrix2D grid, std::shared_ptr<Nonogram
     return grid;
 }
 
-void fix_row(Nonogram::matrix2D& grid, std::vector<int>runs, std::set<int> &columns_to_edit, int i){
+void NonogramSolver::fix_row(Nonogram::matrix2D& grid, std::set<int>& columns_to_edit, int i){
     std::vector<int> * row = &grid[i];
     int n_cols = row->size();
-    std::vector<int> allowed = apply_strategies(*row, runs);
+    //std::vector<int> allowed = apply_strategies(*row, this->runs_row[i]);
+    // apply strategies
+    std::vector<int> allowed(row->size(), EITHER);
+    std::vector<int> allowed1 = left_rightmost_overlap_precompiled(*row, nfa_rows.left[i], nfa_rows.right[i]);
+    for (int j{0}; j < n_cols; j ++){
+        allowed[j] = allowed[j] & allowed1[j];
+    }
     for (int j{0}; j < n_cols; ++j){
         if ((*row)[j] != allowed[j] && allowed[j]!=EITHER){
             columns_to_edit.insert(j);
@@ -63,11 +65,17 @@ void fix_row(Nonogram::matrix2D& grid, std::vector<int>runs, std::set<int> &colu
     }
 }
 
-void fix_col(Nonogram::matrix2D& grid, std::vector<int>runs, std::set<int> &rows_to_edit, int j){
-    std::vector<int> col =  get_column(grid, j);
-    int n_cols = col.size();
-    std::vector<int> allowed = apply_strategies(col, runs);
-    for (int i{0}; i < n_cols; ++i){
+void NonogramSolver::fix_col(Nonogram::matrix2D& grid, std::set<int>& rows_to_edit, int j){
+    std::vector<int> col =  this->get_column(grid, j);
+    int n_rows = col.size();
+    //std::vector<int> allowed = apply_strategies(col, this->runs_col[j]);  
+    // apply strategies
+    std::vector<int> allowed(col.size(), EITHER);
+    std::vector<int> allowed1 = left_rightmost_overlap_precompiled(col, nfa_cols.left[j], nfa_cols.right[j]);
+    for (int i{0}; i < n_rows; ++i){
+        allowed[i] = allowed[i] & allowed1[i];
+    }
+    for (int i{0}; i < n_rows; ++i){
         if (col[i] != allowed[i] && allowed[i]!=EITHER){
             rows_to_edit.insert(i);
             grid[i][j] = allowed[i];
@@ -75,46 +83,67 @@ void fix_col(Nonogram::matrix2D& grid, std::vector<int>runs, std::set<int> &rows
     }
 }
 
-std::vector<int> get_column(Nonogram::matrix2D& grid, int j){
-    std::vector<int> column;
+std::vector<int> NonogramSolver::get_column(Nonogram::matrix2D& grid, int j){
+    std::vector<int> column(grid.size());
     for (int i{0}; i < (int)grid.size(); i++){
-        column.push_back(grid[i][j]);
+        column[i] = grid[i][j];
     }
     return column;
 }
 
-std::vector<int> apply_strategies(std::vector<int>& line, std::vector<int> &runs){
-    std::vector<int> allowed(line.size(), EITHER);
-    std::vector<int> allowed1 = left_rightmost_overlap(line, runs);
-    for (int i{0}; i < line.size(); i ++){
-        allowed[i] = allowed[i] & allowed1[i];
-    }
-    return allowed;
-}
+// std::vector<int> NonogramSolver::apply_strategies(std::vector<int>& line, std::vector<int> &runs){
+//     std::vector<int> allowed(line.size(), EITHER);
+//     std::vector<int> allowed1 = left_rightmost_overlap(line, runs);
+//     for (int i{0}; i < line.size(); i ++){
+//         allowed[i] = allowed[i] & allowed1[i];
+//     }
+//     return allowed;
+// }
 
-std::vector<int> left_rightmost_overlap(std::vector<int> line, std::vector<int>runs){
-    // left most
-    std::unique_ptr<NonDeterministicFiniteAutomation> nfa = std::make_unique<NonDeterministicFiniteAutomation>();
-    nfa->compile(runs);
-    Match m_left = nfa->find_match(line);
+// std::vector<int> NonogramSolver::left_rightmost_overlap(std::vector<int> line, std::vector<int>runs){
+//     // left most
+//     std::unique_ptr<NonDeterministicFiniteAutomation> nfa = std::make_unique<NonDeterministicFiniteAutomation>();
+//     nfa->compile(runs);
+//     Match m_left = nfa->find_match(line);
 
-    //right most
-    std::reverse(line.begin(), line.end());
-    std::reverse(runs.begin(), runs.end());
-    nfa->compile(runs);
-    Match m_right = nfa->find_match(line);
-    std::reverse(m_right.match.begin(), m_right.match.end());
+//     //right most
+//     std::reverse(line.begin(), line.end());
+//     std::reverse(runs.begin(), runs.end());
+//     nfa->compile(runs);
+//     Match m_right = nfa->find_match(line);
+//     std::reverse(m_right.match.begin(), m_right.match.end());
 
-    if(m_left.is_match && m_right.is_match){
+//     if(m_left.is_match && m_right.is_match){
+//         std::vector<int> allowed = overlap(m_left.match, m_right.match);
+//         return allowed;
+//     }
+//     else{
+//         throw SolverError();
+//     }
+// }
+
+std::vector<int> NonogramSolver::left_rightmost_overlap_precompiled(
+        std::vector<int> line, 
+        std::shared_ptr<NonDeterministicFiniteAutomation> nfa_left,
+        std::shared_ptr<NonDeterministicFiniteAutomation> nfa_right){
+        // left most    
+        Match m_left = nfa_left->find_match(line);
+
+        //right most
+        std::reverse(line.begin(), line.end());
+        Match m_right = nfa_right->find_match(line);
+        std::reverse(m_right.match.begin(), m_right.match.end());
+
+        if(m_left.is_match && m_right.is_match){
         std::vector<int> allowed = overlap(m_left.match, m_right.match);
-        return allowed;
-    }
-    else{
-        throw SolverError();
+            return allowed;
+        }
+        else{
+            throw SolverError();
     }
 }
 
-std::vector<int> overlap(std::vector<int>& a, std::vector<int> &b){
+std::vector<int> NonogramSolver::overlap(std::vector<int>& a, std::vector<int> &b){
     /* return the overlap between 2 vectors a and b
     *  There is an overlap if the numbers in each sequence are equal
     *  Even numbers (and zero) are BLANK and odd numbers are BOX
@@ -139,7 +168,7 @@ std::vector<int> overlap(std::vector<int>& a, std::vector<int> &b){
 }
 
 
-std::vector<int> changer_sequence(std::vector<int>& line){
+std::vector<int> NonogramSolver::changer_sequence(std::vector<int>& line){
     int counter = (int) line[0] == BOX;
     int prev = line[0];
     std::vector<int> out(line.size(), 0);
@@ -150,4 +179,31 @@ std::vector<int> changer_sequence(std::vector<int>& line){
         prev = line[i];
     }
     return out;
+}
+
+void NonogramSolver::precompile_nfas(){
+    for (int j{0}; j < this->n_cols; j++){
+        // left most
+        std::shared_ptr<NonDeterministicFiniteAutomation> nfa_l = std::make_shared<NonDeterministicFiniteAutomation>();
+        nfa_l->compile(this->runs_col[j]);
+        this->nfa_cols.left.push_back(nfa_l);
+        // right most
+        std::vector<int> runs_reversed = this->runs_col[j];
+        std::reverse(runs_reversed.begin(), runs_reversed.end());
+        std::shared_ptr<NonDeterministicFiniteAutomation> nfa_r = std::make_shared<NonDeterministicFiniteAutomation>();
+        nfa_r->compile(runs_reversed);
+        this->nfa_cols.right.push_back(nfa_r);
+    }
+    for (int i{0}; i < this->n_rows; i++){
+        // left most
+        std::shared_ptr<NonDeterministicFiniteAutomation> nfa_l = std::make_shared<NonDeterministicFiniteAutomation>();
+        nfa_l->compile(runs_row[i]);
+        this->nfa_rows.left.push_back(nfa_l);
+        // right most
+        std::vector<int> runs_reversed = runs_row[i];
+        std::reverse(runs_reversed.begin(), runs_reversed.end());
+        std::shared_ptr<NonDeterministicFiniteAutomation> nfa_r = std::make_shared<NonDeterministicFiniteAutomation>();
+        nfa_r->compile(runs_reversed);
+        this->nfa_rows.right.push_back(nfa_r);
+    }
 }

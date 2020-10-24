@@ -35,12 +35,13 @@ void nonogram_basics()
 
 
     std::shared_ptr<Nonogram> puzzle = std::make_shared<Nonogram>(r_rows, r_cols);
-    Nonogram::matrix2D solution2 = solve_fast(puzzle, false);
+    std::unique_ptr<NonogramSolver> solver = std::make_unique<NonogramSolver>(puzzle, false);
+    Nonogram::matrix2D solution2 = solver->solve_fast();
 
     //puzzle->set_grid(solution);
     puzzle->set_grid(solution2);
 
-    puzzle->show_grid(puzzle->get_grid(), true, false);
+    puzzle->show_grid(puzzle->get_grid(), true, true, false);
     std::cout << "Is complete: " << puzzle->is_valid_grid(puzzle->get_grid()) << std::endl;
 }
 
@@ -72,16 +73,17 @@ void nfa_tester(){
 void solve_nonogram(std::vector<std::vector<int>> run_rows, std::vector<std::vector<int>> run_col)
 {   
     std::shared_ptr<Nonogram> puzzle = std::make_shared<Nonogram>(run_rows, run_col);
+    std::unique_ptr<NonogramSolver> solver = std::make_unique<NonogramSolver>(puzzle, false);
 
     auto start = high_resolution_clock::now(); 
-    Nonogram::matrix2D solution = solve_fast(puzzle, false);
+    Nonogram::matrix2D solution = solver->solve_fast();
     auto stop = high_resolution_clock::now(); 
     auto duration = duration_cast<milliseconds>(stop - start); 
     std::cout << "time to solve: " << (float)duration.count()/1000 << "s" << std::endl; 
 
     puzzle->set_grid(solution);
 
-    puzzle->show_grid(puzzle->get_grid(), false, false);
+    puzzle->show_grid(puzzle->get_grid(), false, false, false);
     std::cout << "Is complete: " << puzzle->is_valid_grid(puzzle->get_grid()) << std::endl;
 
 }
@@ -90,10 +92,10 @@ int main()
 {   
    //nonogram_basics();
    //nfa_tester();
-   Runs r = read_non_file("puzzles/bear.txt");
+   Runs r = read_non_file("puzzles/balance_puzzle.txt");
    solve_nonogram(r.runs_row, r.runs_col);
-
-    return 0;
+   
+   return 0;
 }
 
 

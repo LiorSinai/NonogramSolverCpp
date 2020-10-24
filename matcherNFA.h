@@ -38,7 +38,7 @@ class NonDeterministicFiniteAutomation
 {
 public:
     NonDeterministicFiniteAutomation(){};
-    void compile(std::vector<int> pattern_); //convert a numerical pattern to a regex pattern
+    void compile(std::vector<int>& pattern_); //convert a numerical pattern to a regex pattern
     Match find_match(std::vector<int>& array); //returns the left-most match
 
     std::vector<State> change_state(State &state, char in_symbol);
@@ -49,7 +49,7 @@ private:
     int num_states{0};     // also used to determine the state ids
     bool is_compiled{false};
 
-    std::vector<char> convert_pattern(std::vector<int> pattern); 
+    std::vector<char> convert_pattern(std::vector<int>& pattern); 
 };
 
 #endif // MATCHER_NFA_H

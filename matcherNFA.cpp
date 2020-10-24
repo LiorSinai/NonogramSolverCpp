@@ -15,7 +15,7 @@ std::vector<State> NonDeterministicFiniteAutomation::change_state(State &state, 
     return next_states;
 }
 
-std::vector<char> NonDeterministicFiniteAutomation::convert_pattern(std::vector<int> pattern){
+std::vector<char> NonDeterministicFiniteAutomation::convert_pattern(std::vector<int>& pattern){
     std::vector<char> fragments;
     fragments.push_back(BLANK); //implicit conversion to char
     fragments.push_back('*');
@@ -36,8 +36,7 @@ std::vector<char> NonDeterministicFiniteAutomation::convert_pattern(std::vector<
 }
 
 
-
-void NonDeterministicFiniteAutomation::compile(std::vector<int> pattern_)
+void NonDeterministicFiniteAutomation::compile(std::vector<int>& pattern_)
 {   
     /* convert a numerical sequence such as (a, b, ..) to the following regex ([23]*)([13]){a}([b]+)....([13]){z}([12]*)
     e.g. (1,5,3) -> ([23]*)([13]){1}([12]+)([13]){5}([12]+)([13]){3}([12]+)([23]*) */
@@ -69,7 +68,7 @@ void NonDeterministicFiniteAutomation::compile(std::vector<int> pattern_)
     st.push(1);  // add end to the start
     int next_, state, prev_;  // always work with these 3 states. Underscore because next and prev are std keywords
     std::vector<char> fragments = convert_pattern(pattern);
-    for (char sym: fragments){
+    for (char& sym: fragments){
         State new_end{'\0', 0, '\0'};  // only used for "default"
         switch (sym){
             case '+':  // one or more
@@ -108,8 +107,8 @@ void NonDeterministicFiniteAutomation::compile(std::vector<int> pattern_)
         }
     }
     this->states.pop_back(); // remove unnecessary end
-    states.back().is_end = true;
-    is_compiled = true;
+    this->states.back().is_end = true;
+    this->is_compiled = true;
 }   
 
 
@@ -136,49 +135,44 @@ Match NonDeterministicFiniteAutomation::find_match(std::vector<int>& array){
     }
 
     int idx = -1; // index in the array
-    std::unordered_map<int, std::vector<int>> matches; //key, value pair is state_id, match. Unordered map might be faster
-    std::vector<std::pair<int, std::vector<int>>> for_new_stack;
-
-    matches.insert(std::pair<int, std::vector<int>>(0, {})); 
+    std::unordered_map<int, std::vector<int>> matches; //key, value pair is state_id, match
+    std::unordered_map<int, std::vector<int>> new_matches; //key, value pair is state_id, match
+    
+    std::vector<int> v;
+    v.reserve(array.size());
+    matches.insert(std::pair<int, std::vector<int>>(0, v)); 
     while (idx < (int)array.size() - 1 && !matches.empty()){
         ++idx;    
         std::vector<int> active_states = extract_keys(matches);
-        for (auto state_id: active_states){
+        for (const auto& state_id: active_states){
             std::vector<int> match = matches[state_id];
             matches.erase(state_id); //free up state 
             State* state = &states[state_id];
             std::vector<State> next_states = this->change_state(*state, array[idx]);
-            for (State next_state: next_states){
+            for (const State& next_state: next_states){
                 if (next_state.is_end){
                     if (is_finished(array, idx)){
-                        std::vector<int> match_final = match;
+                        Match m{match, this->pattern, true};
+                        std::vector<int>& match_final = m.match;
                         match_final.push_back(next_state.symbol);
                         // add final set of blanks
                         std::vector<int> trailing_zeros(array.size() - (idx+1), BLANK);
-                        match_final.insert( match_final.end(), trailing_zeros.begin(), trailing_zeros.end() );
-                        // return 
-                        Match m{match_final, array, true};
+                        match_final.insert(match_final.end(), trailing_zeros.begin(), trailing_zeros.end() );
                         return m;
                     }
                 }
-                else if (matches.find(next_state.id) == matches.end() || next_state.symbol == BOX){
-                    // skip repeated BLANK states, but any current BOX states might progress further
-                    std::vector<int> new_match = match;
-                    new_match.push_back(next_state.symbol);
-                    for_new_stack.push_back(std::make_pair(next_state.id, new_match));
+                // skip repeated BLANK states, but any current BOX states further in the stack will transition and should be ignored
+                else if ((matches.find(next_state.id) == matches.end() || next_state.symbol == BOX) 
+                        && new_matches.find(next_state.id) == new_matches.end()){ // don't overwrite elements in the stack
+                        new_matches[next_state.id] = match;
+                        new_matches[next_state.id].push_back(next_state.symbol);
                 }
             }
         }
-        for (auto p: for_new_stack){
-            if (matches.find(p.first) == matches.end()){
-                // not found
-                matches[p.first] = p.second;
-            }
-        }
-        for_new_stack.clear();
+        matches.swap(new_matches); //matches = new_matches and new_matches.clear()
     }
     // no match was found, return an empty match
-    Match m{{}, array, false};
+    Match m{{}, this->pattern, false};
     return m;
 }
 
