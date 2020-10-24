@@ -33,7 +33,7 @@ Nonogram::matrix2D solve_fast_(Nonogram::matrix2D grid, std::shared_ptr<Nonogram
         }
     }
 
-    // constraint propogation
+    // constraint propagation
     int sweeps{1};
     while (!columns_to_edit.empty()){
         for (int j: columns_to_edit){
@@ -86,8 +86,10 @@ std::vector<int> get_column(Nonogram::matrix2D& grid, int j){
 std::vector<int> apply_strategies(std::vector<int>& line, std::vector<int> &runs){
     std::vector<int> allowed(line.size(), EITHER);
     std::vector<int> allowed1 = left_rightmost_overlap(line, runs);
+    std::vector<int> allowed2 = simple_filler(line, runs);
     for (int i{0}; i < line.size(); i ++){
-        allowed[i] = allowed[i] & allowed1[i];
+        allowed[i] = allowed[i] & allowed1[i]; 
+        allowed[i] = allowed[i] & allowed2[i];
     }
     return allowed;
 }
@@ -150,4 +152,39 @@ std::vector<int> changer_sequence(std::vector<int>& line){
         prev = line[i];
     }
     return out;
+}
+
+std::vector<int> simple_filler(std::vector<int>& line, std::vector<int> &runs){
+    /* easy to spot boxes and blank that the left-right matcher might miss*/
+    int k{0};
+    int on_run {0};
+    std::vector<int> allowed = line; //copy
+    for (int i{0}; i < (int)line.size(); ++i){
+        int x = line[i];
+        if (x == BLANK){
+            if(on_run > 0){
+                ++k; // move to the next pattern
+            }
+            on_run = 0;
+        }
+        else if (x == BOX){
+            ++on_run;
+        }
+        else{ //x==EITHER
+            if (k >= (int)runs.size()){
+                break;
+            }
+            else if (0 < on_run && on_run < runs[k]){ //must be a gap in a run
+                allowed[i] = BOX;
+                ++on_run;
+            }
+            else if (on_run==0 && k > 0 && i > 0 && line[i-1]==BOX){ //this must be a BLANK ending a run
+                allowed[i] = BLANK;
+            }
+            else{
+                break; //too many unknowns
+            }
+        }
+    }
+    return allowed;
 }
