@@ -89,9 +89,9 @@ void solve_nonogram(std::vector<std::vector<int>> run_rows, std::vector<std::vec
 int main()
 {   
    //nonogram_basics();
-   //nfa_tester();
-   Runs r = read_non_file("puzzles/balance_puzzle.txt");
-   solve_nonogram(r.runs_row, r.runs_col);
+   nfa_tester();
+   //Runs r = read_non_file("puzzles/balaxnce_puzzle.txt");
+   //solve_nonogram(r.runs_row, r.runs_col);
 
     return 0;
 }

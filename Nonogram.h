@@ -53,4 +53,11 @@ public:
 enum cell_types {BOX=1, BLANK=2, EITHER=3, DUMMY=4};
 enum cell_types2 {BLACK=1, WHITE=2, EITHER_=3};
 
+struct Match
+{
+    std::vector<int> match{};
+    std::vector<int> pattern{};
+    bool is_match {false};
+};
+
 #endif // NONOGRAM_H

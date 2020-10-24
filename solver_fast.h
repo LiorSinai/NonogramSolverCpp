@@ -20,16 +20,20 @@ Nonogram::matrix2D solve_fast_(Nonogram::matrix2D grid, std::shared_ptr<Nonogram
                                std::set<int> rows_to_edit={}, std::set<int> columns_to_edit={});
 Nonogram::matrix2D solve_fast(std::shared_ptr<Nonogram> puzzle, bool make_guess);
 
+float get_progress(Nonogram::matrix2D& grid);
+
 void fix_row(Nonogram::matrix2D& grid, std::vector<int>runs, std::set<int> &columns_to_edit, int i);
 void fix_col(Nonogram::matrix2D& grid, std::vector<int>runs, std::set<int> &rows_to_edit, int j);
 std::vector<int> get_column(Nonogram::matrix2D& grid, int j);
-                
-std::vector<int> simple_filler(std::vector<int>& line, std::vector<int> &runs);
-std::vector<int> changer_sequence(std::vector<int>& line);
-std::vector<int> overlap(std::vector<int>& a, std::vector<int> &b);
-std::vector<int> left_rightmost_overlap(std::vector<int> line, std::vector<int>runs);
-//std::vector<std::vector<int>> splitter(std::vector<int>& line, std::vector<int>runs);
+
 std::vector<int> apply_strategies(std::vector<int>& line, std::vector<int> &runs);
+std::vector<int> left_rightmost_overlap(std::vector<int> line, std::vector<int>runs); //copy these because they are edited
+std::vector<int> overlap(std::vector<int>& a, std::vector<int> &b);
+std::vector<int> changer_sequence(std::vector<int>& line);
+std::vector<int> simple_filler(std::vector<int>& line, std::vector<int> &runs);
+//std::vector<std::vector<int>> splitter(std::vector<int>& line, std::vector<int>runs);
+
+Match minumum_match(std::vector<int>& line, std::vector<int> &runs);
 
 struct SolverError : public std::exception
 {

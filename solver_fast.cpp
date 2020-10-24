@@ -14,6 +14,22 @@ Nonogram::matrix2D solve_fast(std::shared_ptr<Nonogram> puzzle, bool make_guess=
     return solve_fast_(puzzle->get_grid(), puzzle, make_guess);
 }
 
+float get_progress(Nonogram::matrix2D& grid){
+    float n_rows = (float)grid.size();
+    float n_cols = (float)grid[0].size();
+    float count{0.0};
+    for (auto r = grid.begin(); r != grid.end(); r++){
+        std::vector<int> row = *r;
+        for (auto c = row.begin(); c != row.end(); c++){
+            if (*c != EITHER){
+                count+= 1;
+            }
+        }
+    }
+    return 100 * count / (n_rows * n_cols);
+}
+
+
 Nonogram::matrix2D solve_fast_(Nonogram::matrix2D grid, std::shared_ptr<Nonogram> puzzle, bool make_guess, 
                                std::set<int> rows_to_edit, std::set<int> columns_to_edit){
     // extract values from Nonogram object
@@ -46,7 +62,9 @@ Nonogram::matrix2D solve_fast_(Nonogram::matrix2D grid, std::shared_ptr<Nonogram
         rows_to_edit.clear();
         sweeps += 2;
     }
-    std::cout<< "constraint propogation done in " << sweeps << " sweeps" << std::endl;
+    std::cout<< "constraint propogation done in " << sweeps << " sweeps" << "\n";
+    std::cout<< printf("%.3lf", get_progress(grid)) << "% complete";
+    std::cout<< std::endl;
 
     return grid;
 }
@@ -94,17 +112,37 @@ std::vector<int> apply_strategies(std::vector<int>& line, std::vector<int> &runs
     return allowed;
 }
 
+bool all_unknown(std::vector<int>& line){
+    for (const auto x: line){
+        if (x != EITHER){
+            return false;
+        }
+    }
+    return true;
+}
+
 std::vector<int> left_rightmost_overlap(std::vector<int> line, std::vector<int>runs){
     // left most
-    std::unique_ptr<NonDeterministicFiniteAutomation> nfa = std::make_unique<NonDeterministicFiniteAutomation>();
-    nfa->compile(runs);
-    Match m_left = nfa->find_match(line);
+    Match m_left;
+    Match m_right;
+    if (all_unknown(line)){
+        // use minimum match
+        m_left = minumum_match(line, runs);
+        std::reverse(line.begin(), line.end());
+        std::reverse(runs.begin(), runs.end());
+        m_right = minumum_match(line, runs);
+    }
+    else {
+        std::unique_ptr<NonDeterministicFiniteAutomation> nfa = std::make_unique<NonDeterministicFiniteAutomation>();
+        nfa->compile(runs);
+        m_left = nfa->find_match(line);
 
-    //right most
-    std::reverse(line.begin(), line.end());
-    std::reverse(runs.begin(), runs.end());
-    nfa->compile(runs);
-    Match m_right = nfa->find_match(line);
+        //right most
+        std::reverse(line.begin(), line.end());
+        std::reverse(runs.begin(), runs.end());
+        nfa->compile(runs);
+        m_right = nfa->find_match(line);
+    }
     std::reverse(m_right.match.begin(), m_right.match.end());
 
     if(m_left.is_match && m_right.is_match){
@@ -187,4 +225,19 @@ std::vector<int> simple_filler(std::vector<int>& line, std::vector<int> &runs){
         }
     }
     return allowed;
+}
+
+Match minumum_match(std::vector<int>& line, std::vector<int> &runs){
+    // build minimum match: [BOX]*x + [BLANK] + [BOX]*x + [BLANK] + ... + [BLANK]
+    Match m{{}, runs, true};
+    std::vector<int>& match = m.match;
+    for (const int& r: runs){
+        std::vector<int> run(r, BOX);
+        match.insert(match.end(), run.begin(), run.end());
+        match.push_back(BLANK);
+    }
+    match.pop_back(); // last blank might not be needed
+    std::vector<int> trailing_zeros(line.size() - match.size(), BLANK);
+    match.insert( match.end(), trailing_zeros.begin(), trailing_zeros.end() );
+    return m;
 }

@@ -59,7 +59,7 @@ Runs read_non_file(std::string file_name){
         }
     }
     if (runs_row.empty() || runs_col.empty()){
-        std::cout << "WARNING no file read" << std::endl;
+        throw "WARNING no file read";
     }
 
     return Runs{runs_row, runs_col};
