@@ -90,7 +90,7 @@ std::vector<std::vector<std::string>> Nonogram::make_box(std::vector<std::vector
     return box;
 }
 
-void Nonogram::show_grid(matrix2D &grid, bool show_instructions, bool to_file, std::string symbols)
+void Nonogram::show_grid(matrix2D &grid, bool show_instructions, bool to_screen, bool to_file, std::string symbols)
 {    
     /* Print nonogram to screen and possible a file as well*/
     std::ofstream outfile;
@@ -114,12 +114,16 @@ void Nonogram::show_grid(matrix2D &grid, bool show_instructions, bool to_file, s
         std::vector<std::vector<std::string>> box = make_box(grid, symbols);
         for (int i{0}; i< box.size(); i++){
             for (int j{0}; j < box[0].size(); j++){
-                std::cout << box[i][j] << "  ";
+                if (to_screen){
+                    std::cout << box[i][j] << "  ";
+                }
                 if (to_file){
                     outfile << box[i][j] << " ";
                 }
             }
-            std::cout << "\n";
+            if (to_screen){
+                std::cout << "\n";
+            }
             if (to_file){
                 outfile << "\n";
             }
@@ -128,12 +132,16 @@ void Nonogram::show_grid(matrix2D &grid, bool show_instructions, bool to_file, s
     else{ 
         for (int i{0}; i < n_rows; i++){
             for (int j{0}; j < n_cols; j++){
-                std::cout << symbols[grid[i][j]] << " ";
+                if (to_screen){
+                    std::cout << symbols[grid[i][j]] << " ";
+                }
                 if (to_file){
                     outfile << symbols[grid[i][j]] << " ";
                 }
             }
-            std::cout << "\n";
+            if (to_screen){
+                std::cout << "\n";
+            }
             if (to_file){
                 outfile << "\n";
             }

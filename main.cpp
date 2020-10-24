@@ -81,7 +81,7 @@ void solve_nonogram(std::vector<std::vector<int>> run_rows, std::vector<std::vec
 
     puzzle->set_grid(solution);
 
-    puzzle->show_grid(puzzle->get_grid(), false, false);
+    puzzle->show_grid(puzzle->get_grid(), false, false, false);
     std::cout << "Is complete: " << puzzle->is_valid_grid(puzzle->get_grid()) << std::endl;
 
 }
