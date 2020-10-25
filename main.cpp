@@ -85,12 +85,43 @@ void solve_nonogram(std::vector<std::vector<int>> run_rows, std::vector<std::vec
 
 }
 
+
+void solve_small_nonograms(std::string file_name)
+{   
+    std::ifstream infile(file_name); //note that non_file_reader.h references the appropriate libraries
+    std::string line;
+    std::vector<int> runs;
+    std::stringstream ss;
+
+    while (std::getline(infile, line)){
+        std::vector<std::vector<std::vector<int>>> both_runs {{}, {}};
+        // Parse the rows and columns
+        for (int k{0}; k<2; ++k){
+            std::getline(infile, line); // read the next line
+            ss = std::stringstream (line); //convert to stream
+            runs = {};  
+            for (char i; ss >> i;) { 
+                runs.push_back(i -'A' + 1); 
+                if (ss.peek() == ' '){
+                    both_runs[k].push_back(runs);
+                    runs = {}; 
+                }
+            } 
+            if (!runs.empty()){
+                both_runs[k].push_back(runs);
+            }
+        }
+        solve_nonogram(both_runs[0], both_runs[1]);
+    }
+}
+
 int main()
 {   
    //nonogram_basics();
    //nfa_tester();
-   Runs r = read_non_file("puzzles/lost_puzzle.txt");
-   solve_nonogram(r.runs_row, r.runs_col);
+   //Runs r = read_non_file("puzzles/lost_puzzle.txt");
+   //solve_nonogram(r.runs_row, r.runs_col);
+   solve_small_nonograms("activity_workshop_puzzles.txt");
 
     return 0;
 }
