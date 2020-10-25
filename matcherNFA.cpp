@@ -28,7 +28,7 @@ std::vector<char> NonDeterministicFiniteAutomation::convert_pattern(std::vector<
         fragments.push_back('+');
         fragments.push_back('.');
     }
-    // the final blank is implicitly checked
+    // the final blank is checked in is_finished() so can remove it here
     fragments.pop_back(); // remove .
     fragments.pop_back(); // remove +
     fragments.pop_back(); // remove BLANK 
@@ -122,8 +122,8 @@ std::vector<int> extract_keys(std::unordered_map<int, std::vector<int> > const& 
 }
 
 bool is_finished(std::vector<int>& array, int idx){
-    for (int i = idx+1; i < array.size(); ++i){
-        if (array[i] == BOX){
+    for (auto it = array.begin() + idx+1; it != array.end(); ++it){
+        if (*it == BOX){
             return false;
         }
     }
@@ -144,30 +144,31 @@ Match NonDeterministicFiniteAutomation::find_match(std::vector<int>& array){
         ++idx;    
         std::vector<int> active_states = extract_keys(matches);
         for (auto state_id: active_states){
-            std::vector<int> match = matches[state_id];
-            matches.erase(state_id); //free up state 
+            std::vector<int>& match = matches[state_id];
             State* state = &states[state_id];
             std::vector<State> next_states = this->change_state(*state, array[idx]);
             for (State next_state: next_states){
                 if (next_state.is_end){
                     if (is_finished(array, idx)){
-                        std::vector<int> match_final = match;
+                        // create final match
+                        Match m{match, this->pattern, true};
+                        std::vector<int>& match_final = m.match;
                         match_final.push_back(next_state.symbol);
                         // add final set of blanks
                         std::vector<int> trailing_zeros(array.size() - (idx+1), BLANK);
-                        match_final.insert( match_final.end(), trailing_zeros.begin(), trailing_zeros.end() );
+                        match_final.insert(match_final.end(), trailing_zeros.begin(), trailing_zeros.end() );
                         // return 
-                        Match m{match_final, array, true};
                         return m;
                     }
                 }
-                else if (matches.find(next_state.id) == matches.end() || next_state.symbol == BOX){
+                else if (next_state.id == state->id || matches.find(next_state.id) == matches.end() || next_state.symbol == BOX){
                     // skip repeated BLANK states, but any current BOX states might progress further
                     std::vector<int> new_match = match;
                     new_match.push_back(next_state.symbol);
                     for_new_stack.push_back(std::make_pair(next_state.id, new_match));
                 }
             }
+            matches.erase(state_id); //free up state 
         }
         for (auto p: for_new_stack){
             if (matches.find(p.first) == matches.end()){
@@ -178,7 +179,78 @@ Match NonDeterministicFiniteAutomation::find_match(std::vector<int>& array){
         for_new_stack.clear();
     }
     // no match was found, return an empty match
-    Match m{{}, array, false};
-    return m;
+    return Match {{}, this->pattern, false};
 }
 
+bool is_finished_right(std::vector<int>& array, int idx){
+    if (array[0] == BOX){
+        return idx == 0;
+    }
+    if (idx ==0){
+        return true;
+    }
+    for (auto it = array.begin() + idx-1; it != array.begin(); --it){
+        if (*it == BOX){
+            return false;
+        }
+    }
+    return true;
+}
+
+
+Match NonDeterministicFiniteAutomation::find_right_match(std::vector<int>& array){
+    if (!this->is_compiled){
+        throw "The NFA was not compiled!";
+    }
+    pattern = this->pattern;
+    std::reverse(pattern.begin(), pattern.end());
+    this->compile(pattern);
+
+    int idx = (int)array.size(); // index in the array
+    std::unordered_map<int, std::vector<int>> matches; //key, value pair is state_id, match. Unordered map might be faster
+    std::vector<std::pair<int, std::vector<int>>> for_new_stack;
+
+    matches.insert(std::pair<int, std::vector<int>>(0, {})); 
+    while (idx > 0 && !matches.empty()){
+        --idx;    
+        std::vector<int> active_states = extract_keys(matches);
+        for (auto state_id: active_states){
+            std::vector<int>& match = matches[state_id];
+            State* state = &states[state_id];
+            std::vector<State> next_states = this->change_state(*state, array[idx]);
+            for (State next_state: next_states){
+                if (next_state.is_end){
+                    if (is_finished_right(array, idx)){
+                        // create final match
+                        Match m{match, this->pattern, true};
+                        std::vector<int>& match_final = m.match;
+                        match_final.insert(match_final.begin(), next_state.symbol);
+                        // add final set of blanks
+                        std::vector<int> leading_blanks((idx), BLANK);
+                        if (!leading_blanks.empty()){
+                        match_final.insert(match_final.begin(), leading_blanks.begin(), leading_blanks.end() );
+                        }
+                        // return 
+                        return m;
+                    }
+                }
+                else if (next_state.id == state->id || matches.find(next_state.id) == matches.end() || next_state.symbol == BOX){
+                    // skip repeated BLANK states, but any current BOX states might progress further
+                    std::vector<int> new_match = match;
+                    new_match.insert(new_match.begin(), next_state.symbol);
+                    for_new_stack.push_back(std::make_pair(next_state.id, new_match));
+                }
+            }
+            matches.erase(state_id); //free up state 
+        }
+        for (auto p: for_new_stack){
+            if (matches.find(p.first) == matches.end()){
+                // not found
+                matches[p.first] = p.second;
+            }
+        }
+        for_new_stack.clear();
+    }
+    // no match was found, return an empty match
+    return Match {{}, this->pattern, false};
+}

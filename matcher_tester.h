@@ -66,6 +66,14 @@ public:
     void run();
 };
 
+
+class FullLine: public NFA_test{
+public:
+    FullLine() : NFA_test("FullLine"){}
+    void run();
+};
+
+
 class ProblemRun: public NFA_test{
 public:
     /* initial versions of the matcher failed on this*/

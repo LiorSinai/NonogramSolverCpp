@@ -85,12 +85,8 @@ void LancasterExample::run(){
     }
     IS_TRUE(ms == s1);
 
-    // right match
-    std::reverse(pattern.begin(), pattern.end());
-    this->nfa->compile(pattern);
-    std::reverse(line.begin(), line.end());
-    m = this->nfa->find_match(line);
-    std::reverse(m.match.begin(), m.match.end());
+    // right match1
+    m = this->nfa->find_right_match(line);
     result = {};
     for (char c: s2){
         result.push_back(symbols2int[c]);
@@ -102,6 +98,18 @@ void LancasterExample::run(){
     }
     IS_TRUE(ms2 == s2);
 
+    // right match
+    std::reverse(pattern.begin(), pattern.end());
+    this->nfa->compile(pattern);
+    std::reverse(line.begin(), line.end());
+    m = this->nfa->find_match(line);
+    std::reverse(m.match.begin(), m.match.end());
+    IS_TRUE(m.match == result);
+    std::string ms3;
+    for (int i: m.match){
+        ms3 += symbols2int[i];
+    }
+    IS_TRUE(ms3 == s2);
 }
 
 
@@ -114,9 +122,13 @@ void LongMiddle::run(){
     m = this->nfa->find_match(line);
     IS_TRUE(m.match == result);
 
-    //right most
-    std::reverse(line.begin(), line.end());
+    // right most1
+    m = this->nfa->find_right_match(line);
     result = {WHITE, WHITE, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, WHITE, WHITE};
+    IS_TRUE(m.match == result);
+
+    //right most using left
+    std::reverse(line.begin(), line.end());
     m = this->nfa->find_match(line);
     std::reverse(m.match.begin(), m.match.end());
     IS_TRUE(m.match == result);
@@ -128,12 +140,12 @@ void WorstCase::run(){
     for (int i{0}; i < 30; ++i){
         line.push_back(EITHER);
     }
+    line[0] = BLACK;
     line.push_back(BLACK); // one black at the end
     result = {BLACK, BLACK, WHITE, BLACK, BLACK, BLACK, BLACK, BLACK, WHITE, BLACK, BLACK, BLACK};
     for (int i{12}; i < 29; ++i){
         result.push_back(WHITE);
     } 
-    line[0] = BLACK;
     result.push_back(BLACK);
     result.push_back(BLACK);
 
@@ -141,6 +153,16 @@ void WorstCase::run(){
     m = this->nfa->find_match(line);
     IS_TRUE(m.match == result);
 
+    //right most
+    result = {BLACK, BLACK, BLACK, BLACK, BLACK, WHITE, BLACK, BLACK, BLACK, WHITE, BLACK, BLACK};
+    std::vector<int> leading_zeros(19, BLANK);
+    result.insert(result.begin(), leading_zeros.begin(), leading_zeros.end() );
+    result[0] = BLACK;
+    result[1] = BLACK;
+    m = this->nfa->find_right_match(line);
+    IS_TRUE(m.match == result);
+
+    // another worst case (from the bear puzzle)
     pattern = {4, 1, 3, 4, 1, 1, 3};
     std::vector<int> line2 (40, EITHER);
     line2[0] = BLACK;
@@ -195,6 +217,7 @@ void NoLine::run(){
 }
 
 void ProblemRun::run(){
+    // from the bear puzzle
     pattern = {4, 2, 1, 3, 1, 3};
     std::vector<int> line2 (40, EITHER);
     line2[0] = BLACK;
@@ -214,5 +237,18 @@ void ProblemRun::run(){
 
     this->nfa->compile(pattern);
     m = this->nfa->find_match(line2);
+    IS_TRUE(m.match == result);
+}
+
+void FullLine::run(){
+    pattern = {15};
+    this->nfa->compile(pattern);
+
+    line  = std::vector<int> (15, EITHER);
+    result = std::vector<int> (15, BLACK); 
+    m = this->nfa->find_match(line);
+    IS_TRUE(m.match == result);
+
+    m = this->nfa->find_right_match(line);
     IS_TRUE(m.match == result);
 }

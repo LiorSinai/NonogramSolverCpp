@@ -121,16 +121,19 @@ bool all_unknown(std::vector<int>& line){
     return true;
 }
 
-std::vector<int> left_rightmost_overlap(std::vector<int> line, std::vector<int>runs){
+std::vector<int> left_rightmost_overlap(std::vector<int>& line, std::vector<int>& runs){
     // left most
     Match m_left;
     Match m_right;
     if (all_unknown(line)){
         // use minimum match
         m_left = minumum_match(line, runs);
-        std::reverse(line.begin(), line.end());
-        std::reverse(runs.begin(), runs.end());
-        m_right = minumum_match(line, runs);
+        std::vector<int> line2 = line;
+        std::reverse(line2.begin(), line2.end());
+        std::vector<int> runs2 = runs;
+        std::reverse(runs2.begin(), runs2.end());
+        m_right = minumum_match(line2, runs2);
+        std::reverse(m_right.match.begin(), m_right.match.end());
     }
     else {
         std::unique_ptr<NonDeterministicFiniteAutomation> nfa = std::make_unique<NonDeterministicFiniteAutomation>();
@@ -138,13 +141,12 @@ std::vector<int> left_rightmost_overlap(std::vector<int> line, std::vector<int>r
         m_left = nfa->find_match(line);
 
         //right most
-        std::reverse(line.begin(), line.end());
-        std::reverse(runs.begin(), runs.end());
-        nfa->compile(runs);
-        m_right = nfa->find_match(line);
+        // std::reverse(line.begin(), line.end());
+        // std::reverse(runs.begin(), runs.end());
+        // nfa->compile(runs);
+        m_right = nfa->find_right_match(line);
     }
-    std::reverse(m_right.match.begin(), m_right.match.end());
-
+    
     if(m_left.is_match && m_right.is_match){
         std::vector<int> allowed = overlap(m_left.match, m_right.match);
         return allowed;

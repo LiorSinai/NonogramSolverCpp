@@ -27,19 +27,14 @@ struct State
     std::vector<int> transitions; // states that this transitions to
 };
 
-struct Match
-{
-    std::vector<int> match{};
-    std::vector<int> pattern{};
-    bool is_match {false};
-};
-
 class NonDeterministicFiniteAutomation
 {
 public:
     NonDeterministicFiniteAutomation(){};
     void compile(std::vector<int> pattern_); //convert a numerical pattern to a regex pattern
     Match find_match(std::vector<int>& array); //returns the left-most match
+    void compile_right(std::vector<int> pattern_); //convert a numerical pattern to a regex pattern
+    Match find_right_match(std::vector<int>& array);
 
     std::vector<State> change_state(State &state, char in_symbol);
 

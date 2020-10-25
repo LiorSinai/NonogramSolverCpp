@@ -55,6 +55,7 @@ void nfa_tester(){
     NoPattern* t6 = new NoPattern();
     NoLine* t7 = new NoLine();
     ProblemRun* t8 = new ProblemRun();
+    FullLine* t9 = new FullLine();
 
     nfa_tester->addTest(t1);
     nfa_tester->addTest(t2);
@@ -64,9 +65,10 @@ void nfa_tester(){
     nfa_tester->addTest(t6);
     nfa_tester->addTest(t7);
     nfa_tester->addTest(t8);
+    nfa_tester->addTest(t9);
     nfa_tester->run();
     
-    delete t1, t2, t3, t4, t5, t6, t7, t8;
+    delete t1, t2, t3, t4, t5, t6, t7, t8, t9;
 }
 
 void solve_nonogram(std::vector<std::vector<int>> run_rows, std::vector<std::vector<int>> run_col)
@@ -89,9 +91,9 @@ void solve_nonogram(std::vector<std::vector<int>> run_rows, std::vector<std::vec
 int main()
 {   
    //nonogram_basics();
-   nfa_tester();
-   //Runs r = read_non_file("puzzles/balaxnce_puzzle.txt");
-   //solve_nonogram(r.runs_row, r.runs_col);
+   //nfa_tester();
+   Runs r = read_non_file("puzzles/warship_puzzle.txt");
+   solve_nonogram(r.runs_row, r.runs_col);
 
     return 0;
 }
