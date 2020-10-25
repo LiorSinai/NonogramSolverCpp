@@ -5,7 +5,6 @@
  * 
  */
 
-#include "matcherNFA.h"
 #include "matcher_tester.h"
 
 // NFA_tests

@@ -7,6 +7,7 @@
 
 #include "matcherNFA.h"
 #include "unit_tester.h"
+#include "Nonogram.h"
 
 
 class NFA_test: public UnitTest {

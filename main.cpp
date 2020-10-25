@@ -1,6 +1,5 @@
 #include <iostream>
 #include <chrono>
-using namespace std::chrono; 
 
 #include "Nonogram.h"
 #include "matcherNFA.h"
@@ -73,25 +72,25 @@ void solve_nonogram(std::vector<std::vector<int>> run_rows, std::vector<std::vec
 {   
     std::shared_ptr<Nonogram> puzzle = std::make_shared<Nonogram>(run_rows, run_col);
 
-    auto start = high_resolution_clock::now(); 
+    auto start = std::chrono::high_resolution_clock::now(); 
     Nonogram::matrix2D solution = solve_fast(puzzle, false);
-    auto stop = high_resolution_clock::now(); 
-    auto duration = duration_cast<milliseconds>(stop - start); 
+    auto stop = std::chrono::high_resolution_clock::now(); 
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); 
     std::cout << "time to solve: " << (float)duration.count()/1000 << "s" << std::endl; 
 
     puzzle->set_grid(solution);
 
-    puzzle->show_grid(puzzle->get_grid(), false, false, false);
-    std::cout << "Is complete: " << puzzle->is_valid_grid(puzzle->get_grid()) << std::endl;
+    puzzle->show_grid(puzzle->get_grid(), false, false, false); //show_instructions, to_screen, to_file
+    std::cout << "Is valid solution: " << puzzle->is_valid_grid(puzzle->get_grid()) << std::endl;
 
 }
 
 int main()
 {   
    //nonogram_basics();
-   nfa_tester();
-   //Runs r = read_non_file("puzzles/balaxnce_puzzle.txt");
-   //solve_nonogram(r.runs_row, r.runs_col);
+   //nfa_tester();
+   Runs r = read_non_file("puzzles/lost_puzzle.txt");
+   solve_nonogram(r.runs_row, r.runs_col);
 
     return 0;
 }

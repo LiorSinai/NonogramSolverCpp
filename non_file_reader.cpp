@@ -61,6 +61,9 @@ Runs read_non_file(std::string file_name){
     if (runs_row.empty() || runs_col.empty()){
         throw "WARNING no file read";
     }
+    else{
+        std::cout << "file loaded" << std::endl;
+    }
 
     return Runs{runs_row, runs_col};
     }

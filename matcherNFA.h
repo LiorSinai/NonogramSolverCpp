@@ -27,13 +27,6 @@ struct State
     std::vector<int> transitions; // states that this transitions to
 };
 
-struct Match
-{
-    std::vector<int> match{};
-    std::vector<int> pattern{};
-    bool is_match {false};
-};
-
 class NonDeterministicFiniteAutomation
 {
 public:

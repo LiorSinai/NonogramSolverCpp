@@ -32,12 +32,13 @@ float get_progress(Nonogram::matrix2D& grid){
 
 Nonogram::matrix2D solve_fast_(Nonogram::matrix2D grid, std::shared_ptr<Nonogram> puzzle, bool make_guess, 
                                std::set<int> rows_to_edit, std::set<int> columns_to_edit){
+    std::cout<< "solving puzzle ..." << std::endl;
     // extract values from Nonogram object
     int n_rows = puzzle->get_n_rows();
     int n_cols = puzzle->get_n_cols();
     std::vector<std::vector<int>> runs_row = puzzle->get_runs_row();
     std::vector<std::vector<int>> runs_col = puzzle->get_runs_col();
-
+    
     //initialise
     if (rows_to_edit.empty() && columns_to_edit.empty()){
         for (int j{0}; j < n_cols; j++){
@@ -62,7 +63,7 @@ Nonogram::matrix2D solve_fast_(Nonogram::matrix2D grid, std::shared_ptr<Nonogram
         rows_to_edit.clear();
         sweeps += 2;
     }
-    std::cout<< "constraint propogation done in " << sweeps << " sweeps" << "\n";
+    std::cout<< "constraint propagation done in " << sweeps << " sweeps" << "\n";
     std::cout<< printf("%.3lf", get_progress(grid)) << "% complete";
     std::cout<< std::endl;
 
@@ -121,27 +122,27 @@ bool all_unknown(std::vector<int>& line){
     return true;
 }
 
-std::vector<int> left_rightmost_overlap(std::vector<int> line, std::vector<int>runs){
-    // left most
+std::vector<int> left_rightmost_overlap(std::vector<int>& line, std::vector<int>& runs){
     Match m_left;
     Match m_right;
+    // for right
+    std::vector<int> line_r = line;
+    std::vector<int> runs_r = runs;
+    std::reverse(line_r.begin(), line_r.end());
+    std::reverse(runs_r.begin(), runs_r.end());
     if (all_unknown(line)){
         // use minimum match
         m_left = minumum_match(line, runs);
-        std::reverse(line.begin(), line.end());
-        std::reverse(runs.begin(), runs.end());
-        m_right = minumum_match(line, runs);
+        m_right = minumum_match(line_r, runs_r);
     }
     else {
         std::unique_ptr<NonDeterministicFiniteAutomation> nfa = std::make_unique<NonDeterministicFiniteAutomation>();
+        // left most
         nfa->compile(runs);
         m_left = nfa->find_match(line);
-
         //right most
-        std::reverse(line.begin(), line.end());
-        std::reverse(runs.begin(), runs.end());
-        nfa->compile(runs);
-        m_right = nfa->find_match(line);
+        nfa->compile(runs_r);
+        m_right = nfa->find_match(line_r);
     }
     std::reverse(m_right.match.begin(), m_right.match.end());
 

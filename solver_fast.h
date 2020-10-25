@@ -27,7 +27,7 @@ void fix_col(Nonogram::matrix2D& grid, std::vector<int>runs, std::set<int> &rows
 std::vector<int> get_column(Nonogram::matrix2D& grid, int j);
 
 std::vector<int> apply_strategies(std::vector<int>& line, std::vector<int> &runs);
-std::vector<int> left_rightmost_overlap(std::vector<int> line, std::vector<int>runs); //copy these because they are edited
+std::vector<int> left_rightmost_overlap(std::vector<int>& line, std::vector<int>&runs); 
 std::vector<int> overlap(std::vector<int>& a, std::vector<int> &b);
 std::vector<int> changer_sequence(std::vector<int>& line);
 std::vector<int> simple_filler(std::vector<int>& line, std::vector<int> &runs);
