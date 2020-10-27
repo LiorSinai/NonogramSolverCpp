@@ -70,7 +70,7 @@ void NonDeterministicFiniteAutomation::compile(std::vector<int> pattern_)
     int next_, state, prev_;  // always work with these 3 states. Underscore because next and prev are std keywords
     std::vector<char> fragments = convert_pattern(pattern);
     for (char sym: fragments){
-        State new_end{'\0', 0, '\0'};  // only used for "default"
+        State new_end;  // only used for "default"
         switch (sym){
             case '+':  // one or more
                 next_ = st.top();   st.pop();
@@ -140,44 +140,42 @@ Match NonDeterministicFiniteAutomation::find_match(std::vector<int>& array){
 
     int idx = -1; // index in the array
     std::unordered_map<int, std::vector<int>> matches; //key, value pair is state_id, match
-    std::vector<std::pair<int, std::vector<int>>> for_new_stack;
+    std::unordered_map<int, std::vector<int>> new_matches; //key, value pair is state_id, match
 
     matches.insert(std::pair<int, std::vector<int>>(0, {})); 
     while (idx < (int)array.size() - 1 && !matches.empty()){
         ++idx;    
-        std::vector<int> active_states = extract_keys(matches);
-        for (auto state_id: active_states){
-            std::vector<int>* match = &matches[state_id];
+        std::unordered_map<int, std::vector<int>>::iterator it;
+        for (it = matches.begin(); it != matches.end(); ++it){
+            int state_id = it->first; 
+            std::vector<int>* match = &it->second;
             State* state = &states[state_id];
-            std::vector<State> next_states = this->change_state(*state, array[idx]);
-            for (State next_state: next_states){
-                if (next_state.is_end){
-                    if (is_finished(array, idx)){
-                        Match m{*match, this->pattern, true};
-                        std::vector<int>* match_final = &m.match;
-                        match_final->push_back(next_state.symbol);
-                        // add final set of blanks
-                        std::vector<int> trailing_zeros(array.size() - (idx+1), BLANK);
-                        match_final->insert( match_final->end(), trailing_zeros.begin(), trailing_zeros.end() );                       
-                        return m;
+            for (int next_id: state->transitions){
+                // is this a valid transition?
+                if (this->states[next_id].symbol == '\0' || this->states[next_id].symbol & array[idx]){
+                    State* next_state = &states[next_id];
+                    if (next_state->is_end){
+                        if (is_finished(array, idx)){
+                            Match m{*match, this->pattern, true};
+                            std::vector<int>* match_final = &m.match;
+                            match_final->push_back(next_state->symbol);
+                            // add final set of blanks
+                            std::vector<int> trailing_zeros(array.size() - (idx+1), BLANK);
+                            match_final->insert( match_final->end(), trailing_zeros.begin(), trailing_zeros.end() );                       
+                            return m;
+                        }
                     }
-                }
-                // skip repeated BLANK states, but any current BOX states might progress further
-                else if (next_state.id == state->id || matches.find(next_state.id) == matches.end() || next_state.symbol == BOX){
-                    std::vector<int> new_match = *match;
-                    new_match.push_back(next_state.symbol);
-                    for_new_stack.push_back(std::make_pair(next_state.id, new_match));
-                }
-            }
-            matches.erase(state_id); //free up this state 
+                    // keep only the earliest repeated states in the stack (overwrite newer entries into repeats)
+                    else if ((next_state->id == state->id) || (new_matches.find(next_state->id) == new_matches.end())){
+                        std::vector<int> new_match = *match;
+                        new_match.push_back(next_state->symbol);
+                        new_matches[next_state->id] = new_match;
+                    }
+                } // else skip this transition
+            } // move onto the next active state
         }
-        for (auto p: for_new_stack){
-            if (matches.find(p.first) == matches.end()){
-                // not found
-                matches[p.first] = p.second;
-            }
-        }
-        for_new_stack.clear();
+        matches.swap(new_matches);
+        new_matches.clear();
     }
     // no match was found, return an empty match
     Match m{{}, this->pattern, false};

@@ -153,7 +153,7 @@ std::vector<int> apply_strategies(std::vector<int>& line, std::vector<int> &runs
 }
 
 // std::vector<int> apply_strategies(std::vector<int>& line, std::vector<int> &runs){
-//     /* split and apply strategies */
+//     /* split and apply strategies. Seems to be an error where sometimes it doesnt solve fully*/
 //     std::vector<std::pair<std::vector<int>, std::vector<int>>> segments = splitter(line, runs);
 //     std::vector<int> allowed_full;
 //     for (auto & line_run: segments){
