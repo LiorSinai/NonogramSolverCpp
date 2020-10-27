@@ -66,16 +66,15 @@ void nfa_tester(){
     delete t1, t2, t3, t4, t5, t6, t7;
 }
 
-void solve_nonogram(std::vector<std::vector<int>> run_rows, std::vector<std::vector<int>> run_col)
+void solve_nonogram(std::vector<std::vector<int>> run_rows, std::vector<std::vector<int>> run_col, bool make_guess=false)
 {   
     std::shared_ptr<Nonogram> puzzle = std::make_shared<Nonogram>(run_rows, run_col);
 
     auto start = std::chrono::high_resolution_clock::now(); 
-    Nonogram::matrix2D solution = solve_fast(puzzle, false);
+    Nonogram::matrix2D solution = solve_fast(puzzle, make_guess);
     auto stop = std::chrono::high_resolution_clock::now(); 
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); 
     std::cout << "time to solve: " << (float)duration.count()/1000 << "s" << std::endl; 
-
     puzzle->set_grid(solution);
 
     puzzle->show_grid(puzzle->get_grid(), false, false, false); //show_instructions, to_screen, to_file
@@ -117,8 +116,8 @@ int main()
 {   
    //nonogram_basics();
    //nfa_tester();
-   Runs r = read_non_file("puzzles/lost.txt");
-   solve_nonogram(r.runs_row, r.runs_col);
+   Runs r = read_non_file("puzzles/beach.txt");
+   solve_nonogram(r.runs_row, r.runs_col, true);
    //solve_small_nonograms("activity_workshop_puzzles.txt");
 
     return 0;

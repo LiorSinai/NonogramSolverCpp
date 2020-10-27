@@ -16,6 +16,7 @@
 
 #include "Nonogram.h"
 #include "matcherNFA.h"
+#include "guesser.h"
 
 Nonogram::matrix2D solve_fast_(Nonogram::matrix2D grid, std::shared_ptr<Nonogram> puzzle, bool make_guess=false, 
                                std::set<int> rows_to_edit={}, std::set<int> columns_to_edit={});

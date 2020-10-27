@@ -9,9 +9,16 @@
 
 #include "solver_fast.h"
 
+namespace{
+    int guesses{0};
+} 
 
 Nonogram::matrix2D solve_fast(std::shared_ptr<Nonogram> puzzle, bool make_guess=true){
-    return solve_fast_(puzzle->get_grid(), puzzle, make_guess);
+    std::cout<< "solving puzzle ..." << std::endl;
+    Nonogram::matrix2D  grid = solve_fast_(puzzle->get_grid(), puzzle, make_guess);
+    float progress = get_progress(grid);
+    std::cout<< printf("%.3lf", 100*progress) << "% complete" << std::endl;
+    return grid;
 }
 
 float get_progress(Nonogram::matrix2D& grid){
@@ -26,13 +33,12 @@ float get_progress(Nonogram::matrix2D& grid){
             }
         }
     }
-    return 100 * count / (n_rows * n_cols);
+    return count / (n_rows * n_cols);
 }
 
 
 Nonogram::matrix2D solve_fast_(Nonogram::matrix2D grid, std::shared_ptr<Nonogram> puzzle, bool make_guess, 
                                std::set<int> rows_to_edit, std::set<int> columns_to_edit){
-    std::cout<< "solving puzzle ..." << std::endl;
     // extract values from Nonogram object
     int n_rows = puzzle->get_n_rows();
     int n_cols = puzzle->get_n_cols();
@@ -40,6 +46,7 @@ Nonogram::matrix2D solve_fast_(Nonogram::matrix2D grid, std::shared_ptr<Nonogram
     std::vector<std::vector<int>> runs_col = puzzle->get_runs_col();
     
     //initialise
+    int sweeps{1};
     if (rows_to_edit.empty() && columns_to_edit.empty()){
         for (int j{0}; j < n_cols; j++){
             columns_to_edit.insert(j);
@@ -51,7 +58,6 @@ Nonogram::matrix2D solve_fast_(Nonogram::matrix2D grid, std::shared_ptr<Nonogram
     }
 
     // constraint propagation
-    int sweeps{1};
     while (!columns_to_edit.empty()){
         for (int j: columns_to_edit){
             fix_col(grid, runs_col[j], rows_to_edit, j);
@@ -63,9 +69,35 @@ Nonogram::matrix2D solve_fast_(Nonogram::matrix2D grid, std::shared_ptr<Nonogram
         rows_to_edit.clear();
         sweeps += 2;
     }
-    std::cout<< "constraint propagation done in " << sweeps << " sweeps" << "\n";
-    std::cout<< printf("%.3lf", get_progress(grid)) << "% complete";
-    std::cout<< std::endl;
+
+    float progress = get_progress(grid);
+    if (!make_guess){
+        std::cout<< "constraint propagation done in " << sweeps << " sweeps" << "\n";
+        std::cout<< printf("%.3lf", 100*progress) << "% complete";
+        std::cout<< std::endl;
+    }
+
+    // make guess
+    if ((progress < 1) && make_guess){
+        std::vector<int>  guess = best_guess(grid);
+        int rank = guess[0]; int i = guess[1]; int j = guess[2]; // guess on the highest ranked element
+        ++guesses; //only the first one is a guess
+        std::cout << printf("%d %.3lf", guesses, 100*progress) << "%" << std::endl;
+        for (const auto & cell: {BOX, BLANK}){
+            try{
+                grid[i][j] = cell;
+                rows_to_edit = {i};
+                columns_to_edit = {j};
+                Nonogram::matrix2D grid_next = solve_fast_(grid, puzzle, true, rows_to_edit, columns_to_edit);
+                if (get_progress(grid_next) >= 1){
+                    grid = grid_next;
+                    break;
+                }
+            }
+            catch (SolverError& e){
+            } 
+        }
+    }
 
     return grid;
 }
@@ -75,7 +107,7 @@ void fix_row(Nonogram::matrix2D& grid, std::vector<int>runs, std::set<int> &colu
     int n_cols = row->size();
     std::vector<int> allowed = apply_strategies(*row, runs);
     for (int j{0}; j < n_cols; ++j){
-        if ((*row)[j] != allowed[j] && allowed[j]!=EITHER){
+        if (((*row)[j] != allowed[j]) && (allowed[j]!=EITHER)){
             columns_to_edit.insert(j);
             grid[i][j] = allowed[j];
         }
@@ -87,7 +119,7 @@ void fix_col(Nonogram::matrix2D& grid, std::vector<int>runs, std::set<int> &rows
     int n_cols = col.size();
     std::vector<int> allowed = apply_strategies(col, runs);
     for (int i{0}; i < n_cols; ++i){
-        if (col[i] != allowed[i] && allowed[i]!=EITHER){
+        if ((col[i] != allowed[i]) && (allowed[i]!=EITHER)){
             rows_to_edit.insert(i);
             grid[i][j] = allowed[i];
         }
@@ -102,50 +134,50 @@ std::vector<int> get_column(Nonogram::matrix2D& grid, int j){
     return column;
 }
 
-// std::vector<int> apply_strategies(std::vector<int>& line, std::vector<int> &runs){
-//     std::vector<int> allowed(line.size(), EITHER);
-//     std::vector<int> allowed1 = left_rightmost_overlap(line, runs);
-//     std::vector<int> allowed2 = simple_filler(line, runs);
-//     std::vector<int> line_r = line;
-//     std::vector<int> runs_r = runs_r;
-//     std::reverse(line_r.begin(), line_r.end());
-//     std::reverse(runs_r.begin(), runs_r.end());
-//     std::vector<int> allowed3 = simple_filler(line_r, runs_r);
-//     std::reverse(allowed3.begin(), allowed3.end());
-//     for (int i{0}; i < line.size(); i ++){
-//         allowed[i] = allowed[i] & allowed1[i]; 
-//         allowed[i] = allowed[i] & allowed2[i];
-//         allowed[i] = allowed[i] & allowed3[i];
-//     }
-//     return allowed;
-// }
-
 std::vector<int> apply_strategies(std::vector<int>& line, std::vector<int> &runs){
-    /* split and apply strategies */
-    std::vector<std::pair<std::vector<int>, std::vector<int>>> segments = splitter(line, runs);
-    std::vector<int> allowed_full;
-    for (auto & line_run: segments){
-        if (line_run.first.empty()){
-            continue;
-        }
-        std::vector<int> line_seg = line_run.first;
-        std::vector<int> runs_seg = line_run.second;
-        std::vector<int> allowed(line_seg.size(), EITHER);
-        std::vector<int> allowed1 = left_rightmost_overlap(line_seg, runs_seg);
-        std::vector<int> allowed2 = simple_filler(line_seg, runs_seg);
-        std::reverse(line_seg.begin(), line_seg.end());
-        std::reverse(runs_seg.begin(), runs_seg.end());
-        std::vector<int> allowed3 = simple_filler(line_seg, runs_seg);
-        std::reverse(allowed3.begin(), allowed3.end());
-        for (int i{0}; i < line_seg.size(); i ++){
-            allowed[i] = allowed[i] & allowed1[i]; 
-            allowed[i] = allowed[i] & allowed2[i];
-            allowed[i] = allowed[i] & allowed3[i];
-        }
-        allowed_full.insert(allowed_full.end(), allowed.begin(), allowed.end());
+    std::vector<int> allowed(line.size(), EITHER);
+    std::vector<int> allowed1 = left_rightmost_overlap(line, runs);
+    std::vector<int> allowed2 = simple_filler(line, runs);
+    std::vector<int> line_r = line;
+    std::vector<int> runs_r = runs_r;
+    std::reverse(line_r.begin(), line_r.end());
+    std::reverse(runs_r.begin(), runs_r.end());
+    std::vector<int> allowed3 = simple_filler(line_r, runs_r);
+    std::reverse(allowed3.begin(), allowed3.end());
+    for (int i{0}; i < line.size(); i ++){
+        allowed[i] = allowed[i] & allowed1[i]; 
+        allowed[i] = allowed[i] & allowed2[i];
+        allowed[i] = allowed[i] & allowed3[i];
     }
-    return allowed_full;
+    return allowed;
 }
+
+// std::vector<int> apply_strategies(std::vector<int>& line, std::vector<int> &runs){
+//     /* split and apply strategies */
+//     std::vector<std::pair<std::vector<int>, std::vector<int>>> segments = splitter(line, runs);
+//     std::vector<int> allowed_full;
+//     for (auto & line_run: segments){
+//         if (line_run.first.empty()){
+//             continue;
+//         }
+//         std::vector<int> line_seg = line_run.first;
+//         std::vector<int> runs_seg = line_run.second;
+//         std::vector<int> allowed(line_seg.size(), EITHER);
+//         std::vector<int> allowed1 = left_rightmost_overlap(line_seg, runs_seg);
+//         std::vector<int> allowed2 = simple_filler(line_seg, runs_seg);
+//         std::reverse(line_seg.begin(), line_seg.end());
+//         std::reverse(runs_seg.begin(), runs_seg.end());
+//         std::vector<int> allowed3 = simple_filler(line_seg, runs_seg);
+//         std::reverse(allowed3.begin(), allowed3.end());
+//         for (int i{0}; i < line_seg.size(); i ++){
+//             allowed[i] = allowed[i] & allowed1[i]; 
+//             allowed[i] = allowed[i] & allowed2[i];
+//             allowed[i] = allowed[i] & allowed3[i];
+//         }
+//         allowed_full.insert(allowed_full.end(), allowed.begin(), allowed.end());
+//     }
+//     return allowed_full;
+// }
 
 bool all_unknown(std::vector<int>& line){
     for (const auto x: line){
@@ -247,11 +279,11 @@ std::vector<int> simple_filler(std::vector<int>& line, std::vector<int> &runs){
             if (k >= (int)runs.size()){
                 break;
             }
-            else if (0 < on_run && on_run < runs[k]){ //must be a gap in a run
+            else if ((0 < on_run) && (on_run < runs[k])){ //must be a gap in a run
                 allowed[i] = BOX;
                 ++on_run;
             }
-            else if (on_run==0 && k > 0 && i > 0 && line[i-1]==BOX){ //this must be a BLANK ending a run
+            else if ((on_run==0) && (k > 0) && (i > 0) && (line[i-1]==BOX)){ //this must be a BLANK ending a run
                 allowed[i] = BLANK;
             }
             else{
@@ -286,12 +318,12 @@ std::pair<std::vector<int>, std::vector<std::pair<int, int>> > get_sequence(std:
     bool on_blank = true;
     for (int i{0}; i < (int)line.size(); ++i){
         int cell = line[i];
-        if (cell == cell_types::BOX && on_blank){
+        if ((cell == cell_types::BOX) && on_blank){
             sequence.push_back(1);
             positions.push_back(std::make_pair(i, i));
             on_blank = false;
         }
-        else if (cell == cell_types::BOX && !on_blank){
+        else if ((cell == cell_types::BOX) && !on_blank){
             sequence.back() += 1;
             positions.back().second += 1;
         }
@@ -313,8 +345,8 @@ std::vector<std::pair<std::vector<int>, std::vector<int>>> splitter(std::vector<
     std::vector<std::pair<int, int> >& positions = sequence.second;
     // get split value and check if unique in runs and in runs_
     auto split_value = std::max_element(runs.begin(), runs.end());
-    if (std::count(runs.begin(), runs.end(), *split_value) != 1 ||
-        std::count(runs_.begin(), runs_.end(), *split_value) != 1){
+    if ((std::count(runs.begin(), runs.end(), *split_value) != 1) ||
+        (std::count(runs_.begin(), runs_.end(), *split_value) != 1)){
         return {std::make_pair(line, runs)};
     }
     // get split idx in runs
