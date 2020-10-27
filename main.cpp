@@ -117,7 +117,7 @@ int main()
 {   
    //nonogram_basics();
    //nfa_tester();
-   Runs r = read_non_file("puzzles/bear.txt");
+   Runs r = read_non_file("puzzles/lost.txt");
    solve_nonogram(r.runs_row, r.runs_col);
    //solve_small_nonograms("activity_workshop_puzzles.txt");
 
