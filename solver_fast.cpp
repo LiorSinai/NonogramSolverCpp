@@ -102,15 +102,49 @@ std::vector<int> get_column(Nonogram::matrix2D& grid, int j){
     return column;
 }
 
+// std::vector<int> apply_strategies(std::vector<int>& line, std::vector<int> &runs){
+//     std::vector<int> allowed(line.size(), EITHER);
+//     std::vector<int> allowed1 = left_rightmost_overlap(line, runs);
+//     std::vector<int> allowed2 = simple_filler(line, runs);
+//     std::vector<int> line_r = line;
+//     std::vector<int> runs_r = runs_r;
+//     std::reverse(line_r.begin(), line_r.end());
+//     std::reverse(runs_r.begin(), runs_r.end());
+//     std::vector<int> allowed3 = simple_filler(line_r, runs_r);
+//     std::reverse(allowed3.begin(), allowed3.end());
+//     for (int i{0}; i < line.size(); i ++){
+//         allowed[i] = allowed[i] & allowed1[i]; 
+//         allowed[i] = allowed[i] & allowed2[i];
+//         allowed[i] = allowed[i] & allowed3[i];
+//     }
+//     return allowed;
+// }
+
 std::vector<int> apply_strategies(std::vector<int>& line, std::vector<int> &runs){
-    std::vector<int> allowed(line.size(), EITHER);
-    std::vector<int> allowed1 = left_rightmost_overlap(line, runs);
-    std::vector<int> allowed2 = simple_filler(line, runs);
-    for (int i{0}; i < line.size(); i ++){
-        allowed[i] = allowed[i] & allowed1[i]; 
-        allowed[i] = allowed[i] & allowed2[i];
+    /* split and apply strategies */
+    std::vector<std::pair<std::vector<int>, std::vector<int>>> segments = splitter(line, runs);
+    std::vector<int> allowed_full;
+    for (auto & line_run: segments){
+        if (line_run.first.empty()){
+            continue;
+        }
+        std::vector<int> line_seg = line_run.first;
+        std::vector<int> runs_seg = line_run.second;
+        std::vector<int> allowed(line_seg.size(), EITHER);
+        std::vector<int> allowed1 = left_rightmost_overlap(line_seg, runs_seg);
+        std::vector<int> allowed2 = simple_filler(line_seg, runs_seg);
+        std::reverse(line_seg.begin(), line_seg.end());
+        std::reverse(runs_seg.begin(), runs_seg.end());
+        std::vector<int> allowed3 = simple_filler(line_seg, runs_seg);
+        std::reverse(allowed3.begin(), allowed3.end());
+        for (int i{0}; i < line_seg.size(); i ++){
+            allowed[i] = allowed[i] & allowed1[i]; 
+            allowed[i] = allowed[i] & allowed2[i];
+            allowed[i] = allowed[i] & allowed3[i];
+        }
+        allowed_full.insert(allowed_full.end(), allowed.begin(), allowed.end());
     }
-    return allowed;
+    return allowed_full;
 }
 
 bool all_unknown(std::vector<int>& line){
@@ -230,6 +264,9 @@ std::vector<int> simple_filler(std::vector<int>& line, std::vector<int> &runs){
 
 Match minumum_match(std::vector<int>& line, std::vector<int> &runs){
     // build minimum match: [BOX]*x + [BLANK] + [BOX]*x + [BLANK] + ... + [BLANK]
+    if (runs.empty()){
+        return Match {std::vector<int> (line.size(), BLANK), {}, true};
+    }
     Match m{{}, runs, true};
     std::vector<int>& match = m.match;
     for (const int& r: runs){
@@ -241,4 +278,66 @@ Match minumum_match(std::vector<int>& line, std::vector<int> &runs){
     std::vector<int> trailing_zeros(line.size() - match.size(), BLANK);
     match.insert( match.end(), trailing_zeros.begin(), trailing_zeros.end() );
     return m;
+}
+
+std::pair<std::vector<int>, std::vector<std::pair<int, int>> > get_sequence(std::vector<int>& line){
+    std::vector<int> sequence;
+    std::vector<std::pair<int, int> > positions;
+    bool on_blank = true;
+    for (int i{0}; i < (int)line.size(); ++i){
+        int cell = line[i];
+        if (cell == cell_types::BOX && on_blank){
+            sequence.push_back(1);
+            positions.push_back(std::make_pair(i, i));
+            on_blank = false;
+        }
+        else if (cell == cell_types::BOX && !on_blank){
+            sequence.back() += 1;
+            positions.back().second += 1;
+        }
+        else { 
+            on_blank = true;
+        }
+    } 
+    return std::make_pair(sequence, positions);
+}
+
+
+std::vector<std::pair<std::vector<int>, std::vector<int>>> splitter(std::vector<int>& line, std::vector<int>&runs){
+    /* split a line into smaller segments at the maximum runs */
+    if (line.empty() || runs.empty()){
+        return {std::make_pair(line, runs)};
+    }
+    auto sequence = get_sequence(line);
+    std::vector<int>& runs_ = sequence.first;
+    std::vector<std::pair<int, int> >& positions = sequence.second;
+    // get split value and check if unique in runs and in runs_
+    auto split_value = std::max_element(runs.begin(), runs.end());
+    if (std::count(runs.begin(), runs.end(), *split_value) != 1 ||
+        std::count(runs_.begin(), runs_.end(), *split_value) != 1){
+        return {std::make_pair(line, runs)};
+    }
+    // get split idx in runs
+    int split_idx = split_value - runs.begin();
+    int split_idx_ = std::find(runs_.begin(), runs_.end(), *split_value) - runs_.begin();
+    // split
+    std::vector<std::pair<std::vector<int>, std::vector<int>>>  splits;
+    auto pos = positions[split_idx_];
+    //recursive call on left
+    //std::vector<std::pair<std::vector<int>, std::vector<int>>> left;
+    std::vector<int>& left_line = std::vector<int>(line.begin(), line.begin() + pos.first - 1 + 1 );
+    std::vector<int>& left_runs = std::vector<int>(runs.begin(), runs.begin() + split_idx - 1 + 1);
+    std::vector<std::pair<std::vector<int>, std::vector<int>>> left = splitter(left_line, left_runs);
+    //middle
+    std::vector<int>& middle_line = std::vector<int>(line.begin() + pos.first, line.begin() + pos.second + 1);
+    std::vector<int> middle_run = {*split_value};
+    //recursive call on right
+    std::vector<int> & right_line = std::vector<int>(line.begin() + pos.second + 1, line.end());
+    std::vector<int> & right_runs = std::vector<int>(runs.begin() + split_idx + 1, runs.end());
+    std::vector<std::pair<std::vector<int>, std::vector<int>>> right = splitter(right_line, right_runs);
+    // join all together
+    splits.insert(splits.begin(), left.begin(), left.end());
+    splits.push_back(make_pair(middle_line, middle_run));
+    splits.insert(splits.end(), right.begin(), right.end());
+    return splits;
 }

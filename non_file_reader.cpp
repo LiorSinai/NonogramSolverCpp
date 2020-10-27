@@ -13,7 +13,7 @@ Runs read_non_file(std::string file_name){
     std::vector<std::vector<int>> runs_row{};
     std::vector<std::vector<int>> runs_col{};
 
-    std::vector<std::vector<int>>* active_runs;
+    std::vector<std::vector<int>>* active_runs = &runs_row;
 
     int read_mode{0};
 

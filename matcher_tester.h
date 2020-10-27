@@ -55,17 +55,12 @@ public:
 };
 
 
-class NoPattern: public NFA_test{
+class EmptyArrays: public NFA_test{
 public:
-    NoPattern() : NFA_test("NoPattern"){}
+    EmptyArrays() : NFA_test("EmptyArrays"){}
     void run();
 };
 
-class NoLine: public NFA_test{
-public:
-    NoLine() : NFA_test("NoLine"){}
-    void run();
-};
 
 class ProblemRun: public NFA_test{
 public:

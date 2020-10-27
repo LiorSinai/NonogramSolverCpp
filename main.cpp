@@ -39,7 +39,7 @@ void nonogram_basics()
     //puzzle->set_grid(solution);
     puzzle->set_grid(solution2);
 
-    puzzle->show_grid(puzzle->get_grid(), true, false);
+    puzzle->show_grid(puzzle->get_grid(), true, true, false);//show_instructions, to_screen, to_file
     std::cout << "Is complete: " << puzzle->is_valid_grid(puzzle->get_grid()) << std::endl;
 }
 
@@ -51,9 +51,8 @@ void nfa_tester(){
     LongMiddle* t3 = new LongMiddle();
     WorstCase* t4 = new WorstCase();
     VeryLong* t5 = new VeryLong();
-    NoPattern* t6 = new NoPattern();
-    NoLine* t7 = new NoLine();
-    ProblemRun* t8 = new ProblemRun();
+    EmptyArrays* t6 = new EmptyArrays();
+    ProblemRun* t7 = new ProblemRun();
 
     nfa_tester->addTest(t1);
     nfa_tester->addTest(t2);
@@ -62,10 +61,9 @@ void nfa_tester(){
     nfa_tester->addTest(t5);
     nfa_tester->addTest(t6);
     nfa_tester->addTest(t7);
-    nfa_tester->addTest(t8);
     nfa_tester->run();
     
-    delete t1, t2, t3, t4, t5, t6, t7, t8;
+    delete t1, t2, t3, t4, t5, t6, t7;
 }
 
 void solve_nonogram(std::vector<std::vector<int>> run_rows, std::vector<std::vector<int>> run_col)
@@ -119,9 +117,9 @@ int main()
 {   
    //nonogram_basics();
    //nfa_tester();
-   //Runs r = read_non_file("puzzles/lost_puzzle.txt");
-   //solve_nonogram(r.runs_row, r.runs_col);
-   solve_small_nonograms("activity_workshop_puzzles.txt");
+   Runs r = read_non_file("puzzles/bear.txt");
+   solve_nonogram(r.runs_row, r.runs_col);
+   //solve_small_nonograms("activity_workshop_puzzles.txt");
 
     return 0;
 }

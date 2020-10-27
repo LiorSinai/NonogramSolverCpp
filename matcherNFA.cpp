@@ -134,6 +134,9 @@ Match NonDeterministicFiniteAutomation::find_match(std::vector<int>& array){
     if (!this->is_compiled){
         throw "The NFA was not compiled!";
     }
+    if (pattern.empty() && array.empty()){
+        return Match{{}, {}, true};
+    }
 
     int idx = -1; // index in the array
     std::unordered_map<int, std::vector<int>> matches; //key, value pair is state_id, match

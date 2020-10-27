@@ -12,6 +12,7 @@
 
 #include <set>
 #include <exception>
+#include <algorithm> // for max
 
 #include "Nonogram.h"
 #include "matcherNFA.h"
@@ -31,7 +32,7 @@ std::vector<int> left_rightmost_overlap(std::vector<int>& line, std::vector<int>
 std::vector<int> overlap(std::vector<int>& a, std::vector<int> &b);
 std::vector<int> changer_sequence(std::vector<int>& line);
 std::vector<int> simple_filler(std::vector<int>& line, std::vector<int> &runs);
-//std::vector<std::vector<int>> splitter(std::vector<int>& line, std::vector<int>runs);
+std::vector<std::pair<std::vector<int>, std::vector<int>>> splitter(std::vector<int>& line, std::vector<int>&runs);
 
 Match minumum_match(std::vector<int>& line, std::vector<int> &runs);
 

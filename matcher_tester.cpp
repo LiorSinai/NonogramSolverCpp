@@ -171,7 +171,8 @@ void VeryLong::run(){
     IS_TRUE(m.match == result);
 }
 
-void NoPattern::run(){
+void EmptyArrays::run(){
+    // no pattern
     pattern = {};
     line   = {3, 3, 3, 3};
     result = {BLANK, BLANK, BLANK, BLANK}; 
@@ -182,16 +183,22 @@ void NoPattern::run(){
     line   = {3, 3, 1, 3};
     m = this->nfa->find_match(line);
     IS_FALSE(m.is_match);
-}
 
-void NoLine::run(){
+    //No line
     pattern = {3, 2, 1};
     line   = {};
     result = {BLANK, BLANK, BLACK, BLANK}; 
     this->nfa->compile(pattern);
     m = this->nfa->find_match(line);
     IS_FALSE(m.is_match);
+
+    //no line or pattern
+    this->nfa->compile({});
+    line = {};
+    m = this->nfa->find_match(line);
+    IS_TRUE(m.is_match);
 }
+
 
 void ProblemRun::run(){
     pattern = {4, 2, 1, 3, 1, 3};
