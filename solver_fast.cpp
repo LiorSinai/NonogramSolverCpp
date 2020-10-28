@@ -81,8 +81,8 @@ Nonogram::matrix2D solve_fast_(Nonogram::matrix2D grid, std::shared_ptr<Nonogram
     if ((progress < 1) && make_guess){
         std::vector<int>  guess = best_guess(grid);
         int rank = guess[0]; int i = guess[1]; int j = guess[2]; // guess on the highest ranked element
-        ++guesses; //only the first one is a guess
         std::cout << printf("%d %.3lf", guesses, 100*progress) << "%" << std::endl;
+        ++guesses; //only the first one is a guess
         for (const auto & cell: {BOX, BLANK}){
             try{
                 grid[i][j] = cell;
@@ -134,50 +134,50 @@ std::vector<int> get_column(Nonogram::matrix2D& grid, int j){
     return column;
 }
 
-std::vector<int> apply_strategies(std::vector<int>& line, std::vector<int> &runs){
-    std::vector<int> allowed(line.size(), EITHER);
-    std::vector<int> allowed1 = left_rightmost_overlap(line, runs);
-    std::vector<int> allowed2 = simple_filler(line, runs);
-    std::vector<int> line_r = line;
-    std::vector<int> runs_r = runs_r;
-    std::reverse(line_r.begin(), line_r.end());
-    std::reverse(runs_r.begin(), runs_r.end());
-    std::vector<int> allowed3 = simple_filler(line_r, runs_r);
-    std::reverse(allowed3.begin(), allowed3.end());
-    for (int i{0}; i < line.size(); i ++){
-        allowed[i] = allowed[i] & allowed1[i]; 
-        allowed[i] = allowed[i] & allowed2[i];
-        allowed[i] = allowed[i] & allowed3[i];
-    }
-    return allowed;
-}
-
 // std::vector<int> apply_strategies(std::vector<int>& line, std::vector<int> &runs){
-//     /* split and apply strategies. Seems to be an error where sometimes it doesnt solve fully*/
-//     std::vector<std::pair<std::vector<int>, std::vector<int>>> segments = splitter(line, runs);
-//     std::vector<int> allowed_full;
-//     for (auto & line_run: segments){
-//         if (line_run.first.empty()){
-//             continue;
-//         }
-//         std::vector<int> line_seg = line_run.first;
-//         std::vector<int> runs_seg = line_run.second;
-//         std::vector<int> allowed(line_seg.size(), EITHER);
-//         std::vector<int> allowed1 = left_rightmost_overlap(line_seg, runs_seg);
-//         std::vector<int> allowed2 = simple_filler(line_seg, runs_seg);
-//         std::reverse(line_seg.begin(), line_seg.end());
-//         std::reverse(runs_seg.begin(), runs_seg.end());
-//         std::vector<int> allowed3 = simple_filler(line_seg, runs_seg);
-//         std::reverse(allowed3.begin(), allowed3.end());
-//         for (int i{0}; i < line_seg.size(); i ++){
-//             allowed[i] = allowed[i] & allowed1[i]; 
-//             allowed[i] = allowed[i] & allowed2[i];
-//             allowed[i] = allowed[i] & allowed3[i];
-//         }
-//         allowed_full.insert(allowed_full.end(), allowed.begin(), allowed.end());
+//     std::vector<int> allowed(line.size(), EITHER);
+//     std::vector<int> allowed1 = left_rightmost_overlap(line, runs);
+//     std::vector<int> allowed2 = simple_filler(line, runs);
+//     std::vector<int> line_r = line;
+//     std::vector<int> runs_r = runs_r;
+//     std::reverse(line_r.begin(), line_r.end());
+//     std::reverse(runs_r.begin(), runs_r.end());
+//     std::vector<int> allowed3 = simple_filler(line_r, runs_r);
+//     std::reverse(allowed3.begin(), allowed3.end());
+//     for (int i{0}; i < line.size(); i ++){
+//         allowed[i] = allowed[i] & allowed1[i]; 
+//         allowed[i] = allowed[i] & allowed2[i];
+//         allowed[i] = allowed[i] & allowed3[i];
 //     }
-//     return allowed_full;
+//     return allowed;
 // }
+
+std::vector<int> apply_strategies(std::vector<int>& line, std::vector<int> &runs){
+    /* split and apply strategies. Seems to be an error where sometimes it doesnt solve fully*/
+    std::vector<std::pair<std::vector<int>, std::vector<int>>> segments = splitter(line, runs);
+    std::vector<int> allowed_full;
+    for (auto & line_run: segments){
+        if (line_run.first.empty()){
+            continue;
+        }
+        std::vector<int> line_seg = line_run.first;
+        std::vector<int> runs_seg = line_run.second;
+        std::vector<int> allowed(line_seg.size(), EITHER);
+        std::vector<int> allowed1 = left_rightmost_overlap(line_seg, runs_seg);
+        std::vector<int> allowed2 = simple_filler(line_seg, runs_seg);
+        std::reverse(line_seg.begin(), line_seg.end());
+        std::reverse(runs_seg.begin(), runs_seg.end());
+        std::vector<int> allowed3 = simple_filler(line_seg, runs_seg);
+        std::reverse(allowed3.begin(), allowed3.end());
+        for (int i{0}; i < line_seg.size(); i ++){
+            allowed[i] = allowed[i] & allowed1[i]; 
+            allowed[i] = allowed[i] & allowed2[i];
+            allowed[i] = allowed[i] & allowed3[i];
+        }
+        allowed_full.insert(allowed_full.end(), allowed.begin(), allowed.end());
+    }
+    return allowed_full;
+}
 
 bool all_unknown(std::vector<int>& line){
     for (const auto x: line){
@@ -355,16 +355,19 @@ std::vector<std::pair<std::vector<int>, std::vector<int>>> splitter(std::vector<
     // split
     std::vector<std::pair<std::vector<int>, std::vector<int>>>  splits;
     auto pos = positions[split_idx_];
+    // add whites on either side
+    int i0 = std::max(pos.first - 1, 0);
+    int i1 = std::min(pos.second + 1, (int)line.size() - 1);
     //recursive call on left
     //std::vector<std::pair<std::vector<int>, std::vector<int>>> left;
-    std::vector<int>& left_line = std::vector<int>(line.begin(), line.begin() + pos.first - 1 + 1 );
+    std::vector<int>& left_line = std::vector<int>(line.begin(), line.begin() + i0);
     std::vector<int>& left_runs = std::vector<int>(runs.begin(), runs.begin() + split_idx - 1 + 1);
     std::vector<std::pair<std::vector<int>, std::vector<int>>> left = splitter(left_line, left_runs);
     //middle
-    std::vector<int>& middle_line = std::vector<int>(line.begin() + pos.first, line.begin() + pos.second + 1);
+    std::vector<int>& middle_line = std::vector<int>(line.begin() + i0, line.begin() + i1 + 1);
     std::vector<int> middle_run = {*split_value};
     //recursive call on right
-    std::vector<int> & right_line = std::vector<int>(line.begin() + pos.second + 1, line.end());
+    std::vector<int> & right_line = std::vector<int>(line.begin() + i1 + 1, line.end());
     std::vector<int> & right_runs = std::vector<int>(runs.begin() + split_idx + 1, runs.end());
     std::vector<std::pair<std::vector<int>, std::vector<int>>> right = splitter(right_line, right_runs);
     // join all together

@@ -85,7 +85,7 @@ void solve_nonogram(std::vector<std::vector<int>> run_rows, std::vector<std::vec
 
 void solve_small_nonograms(std::string file_name)
 {   
-    std::ifstream infile(file_name); //note that non_file_reader.h references the appropriate libraries
+    std::ifstream infile(file_name); //note that non_file_reader.h imports the appropriate libraries
     std::string line;
     std::vector<int> runs;
     std::stringstream ss;
