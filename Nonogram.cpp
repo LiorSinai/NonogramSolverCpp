@@ -115,7 +115,7 @@ void Nonogram::show_grid(matrix2D &grid, bool show_instructions, bool to_screen,
         for (int i{0}; i< box.size(); i++){
             for (int j{0}; j < box[0].size(); j++){
                 if (to_screen){
-                    std::cout << box[i][j] << "  ";
+                    std::cout << box[i][j] << " ";
                 }
                 if (to_file){
                     outfile << box[i][j] << " ";
