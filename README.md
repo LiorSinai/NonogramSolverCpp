@@ -38,7 +38,7 @@ Broken:   >---#--         -      # < <br>
       left>000122344444444444555556< <br>
      right>000122222222222223455555< <br>
       fast>---#--+++++++++-+++####+< <br>
-<\div>
+</div>
 
 [Wolter_survey]: https://webpbn.com/survey/
 [lancaster_solver]: http://scc-forge.lancaster.ac.uk/open/nonogram/
@@ -61,7 +61,7 @@ General description (this line is skipped by the file reader) <br>
 -- next puzzle title (this line is skipped by the file reader) <br>
 ... <br>
 --- 
-<div>
+</div>
 
 The runs are given by sets of unicode characters, with A=1, B=2 and so on. Spaces represent a line break.
 While this can work for a numbers greater than 26, these will be encoded as non-Basic Latin unicode symbols.
@@ -86,12 +86,13 @@ x, x, x <br>
 columns <br>
 x, x, x <br>
 ... <br>
-<div>
+</div>
 
 ---
 
 ## Example solutions
 Elephant, 15x15, solved in 0.012s
+<div>
 -  -  -  -  -  -  03 -  -  -  01 -  -  -  -  -  -  -  -  <br> 
 -  -  -  -  -  -  03 07 -  -  05 02 -  -  01 01 01 01 -  <br>
 -  -  -  -  01 11 01 02 07 15 07 08 14 09 06 09 09 10 12 <br>
@@ -110,6 +111,7 @@ Elephant, 15x15, solved in 0.012s
 -  03 04 04 .  #  #  #  .  #  #  #  #  .  .  #  #  #  # <br>
 -  -  04 04 .  .  .  .  .  #  #  #  #  .  .  #  #  #  # <br>  
 -  -  04 04 .  .  .  .  .  #  #  #  #  .  .  #  #  #  # <br>
+</div>
 
 "Where there is smoke", solved in 0.154s with 12 guesses:
 - -  -  -  -  -  -  -  -  -  -  01 -  -  -  -  -  -  -  -  -  -  -  -  -  - <br>
