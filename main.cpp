@@ -153,16 +153,16 @@ void show_help()
 {
     printf("Usage: nonogramSolver by Lior Sinai, 2020/10/31 ");
     printf("\n\nOptions");
-    printf("\n--help -h show usage options");
+    printf("\n--help -h     show usage options");
     printf("\n--test-basics solve a small 15x15 elephant puzzle");
-    printf("\n--test-nfa run the tester for the matching algorithms");
-    printf("\n--solve -s solve a puzzle. Must also include a filename");
+    printf("\n--test-nfa    run the tester for the matching algorithms");
+    printf("\n--solve -s    solve a puzzle. Must also include a filename");
     printf("\n--solve-collection -sc solve a collection of puzzles. Must also have a corresponding filename");
-    printf("\n--file -f a filename to read");
+    printf("\n--file -f     a filename to read");
     printf("\nsolving and display options");
-    printf("\n--guess -g make guesses if the line solver gets stuck");
+    printf("\n--guess -g    make guesses if the line solver gets stuck");
     printf("\n--show-instructions -i show instructions when printing or saving");
-    printf("\n--print -p print the final solution to the screen");
+    printf("\n--print -p    print the final solution to the screen");
     printf("\n--to-file -pf print the final solution to a file (output file is nonogram_YYYYMMDD_HHMM.txt");
     printf("\n");
 }
@@ -170,7 +170,7 @@ void show_help()
 
 /* cmd line executables */
 int main(int argc, char * argv[]){
-    if (cmdOptionExists(argv, argv+argc, "--help") || cmdOptionExists(argv, argv+argc, "-h")){
+    if (cmdOptionExists(argv, argv+argc, "--help") || cmdOptionExists(argv, argv+argc, "-h") || argc==1){
         show_help();
     }
     else if (cmdOptionExists(argv, argv+argc, "--test-basics")){
