@@ -48,7 +48,7 @@ void NonDeterministicFiniteAutomation::compile(std::vector<int> pattern_)
     is_compiled = false;
     this->states = {};
 
-    // add start to stack
+    // add start and end to state vector
     State start {'\0', num_states++, 's'};
     states.push_back(start);
     State end {'\0', num_states++}; //continuously update the end
@@ -66,7 +66,7 @@ void NonDeterministicFiniteAutomation::compile(std::vector<int> pattern_)
     //general case
     std::stack<int> st;  // state ids to modify
     st.push(0);  // add start to the stack
-    st.push(1);  // add end to the start
+    st.push(1);  // add end to the stack
     int next_, state, prev_;  // always work with these 3 states. Underscore because next and prev are std keywords
     std::vector<char> fragments = convert_pattern(pattern);
     for (char sym: fragments){
@@ -142,7 +142,9 @@ Match NonDeterministicFiniteAutomation::find_match(std::vector<int>& array){
     std::unordered_map<int, std::vector<int>> matches; //key, value pair is state_id, match
     std::unordered_map<int, std::vector<int>> new_matches; //key, value pair is state_id, match
 
-    matches.insert(std::pair<int, std::vector<int>>(0, {})); 
+    std::vector<int> empty_vec;
+    empty_vec.reserve(array.size());
+    matches.insert(std::pair<int, std::vector<int>>(0, empty_vec)); 
     while (idx < (int)array.size() - 1 && !matches.empty()){
         ++idx;    
         std::unordered_map<int, std::vector<int>>::iterator it;
@@ -163,21 +165,18 @@ Match NonDeterministicFiniteAutomation::find_match(std::vector<int>& array){
                             std::vector<int> trailing_zeros(array.size() - (idx+1), BLANK);
                             match_final->insert( match_final->end(), trailing_zeros.begin(), trailing_zeros.end() );                       
                             return m;
-                        }
+                        } 
                     }
-                    // keep only the earliest repeated states in the stack (overwrite newer entries into repeats)
+                    // keep only the earliest repeated states in the stack 
                     else if ((next_state->id == state->id) || (new_matches.find(next_state->id) == new_matches.end())){
-                        std::vector<int> new_match = *match;
-                        new_match.push_back(next_state->symbol);
-                        new_matches[next_state->id] = new_match;
+                        new_matches[next_state->id] = *match; //overwrite newer entries for repeats
+                        new_matches[next_state->id].push_back(next_state->symbol);
                     }
                 } // else skip this transition
-            } // move onto the next active state
+            } // move to the next active state
         }
         matches.swap(new_matches);
         new_matches.clear();
     }
-    // no match was found, return an empty match
-    Match m{{}, this->pattern, false};
-    return m;
+    return Match {{}, this->pattern, false};  // no match was found
 }
