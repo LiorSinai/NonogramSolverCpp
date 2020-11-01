@@ -22,6 +22,16 @@ Nonogram::matrix2D solve_fast_(Nonogram::matrix2D grid, std::shared_ptr<Nonogram
                                std::set<int> rows_to_edit={}, std::set<int> columns_to_edit={});
 Nonogram::matrix2D solve_fast(std::shared_ptr<Nonogram> puzzle, bool make_guess);
 
+struct Guess{
+    int i;
+    int j;
+    std::vector<int> values;
+    int rank;
+    float progress;
+};
+
+Guess probe(std::shared_ptr<Nonogram> puzzle, Nonogram::matrix2D grid);
+
 float get_progress(Nonogram::matrix2D& grid);
 
 void fix_row(Nonogram::matrix2D& grid, std::vector<int>runs, std::set<int> &columns_to_edit, int i);

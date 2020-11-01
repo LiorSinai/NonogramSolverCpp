@@ -57,48 +57,100 @@ Nonogram::matrix2D solve_fast_(Nonogram::matrix2D grid, std::shared_ptr<Nonogram
         }
     }
 
-    // constraint propagation
-    while (!columns_to_edit.empty()){
-        for (int j: columns_to_edit){
-            fix_col(grid, runs_col[j], rows_to_edit, j);
+    float progress = 0;
+    while (progress < 1){
+        // constraint propagation
+        while (!columns_to_edit.empty()){
+            for (int j: columns_to_edit){
+                fix_col(grid, runs_col[j], rows_to_edit, j);
+            }
+            columns_to_edit.clear();
+            for (int i: rows_to_edit){
+                fix_row(grid, runs_row[i], columns_to_edit, i);
+            }
+            rows_to_edit.clear();
+            sweeps += 2;
         }
-        columns_to_edit.clear();
-        for (int i: rows_to_edit){
-            fix_row(grid, runs_row[i], columns_to_edit, i);
+        progress = get_progress(grid);
+        if (!make_guess){
+            if (guesses==0){
+                std::cout<< "constraint propagation done in " << sweeps << " sweeps" << std::endl;
+            }
+            break;
         }
-        rows_to_edit.clear();
-        sweeps += 2;
-    }
 
-    float progress = get_progress(grid);
-    if (!make_guess){
-        std::cout<< "constraint propagation done in " << sweeps << " sweeps" << std::endl;
-    }
-
-    // make guess
-    if ((progress < 1) && make_guess){
-        std::vector<int>  guess = best_guess(grid);
-        int rank = guess[0]; int i = guess[1]; int j = guess[2]; // guess on the highest ranked element
-        std::cout << printf("%d %.3lf", guesses, 100*progress) << "%" << std::endl;
-        ++guesses; //only the first one is a guess
-        for (const auto & cell: {BOX, BLANK}){
-            try{
-                grid[i][j] = cell;
+        // make guess
+        if ((progress < 1) && make_guess){
+            ++guesses; 
+            Guess best_guess = probe(puzzle, grid);
+            int i = best_guess.i; int j = best_guess.j; // guess on the highest ranked element
+            std::cout << printf("%d %.3lf", guesses-1, 100*progress) << "%";
+            if (best_guess.values.size() == 1){ //a contradiction was found
+                std::cout << std::endl;
+                grid[i][j] = best_guess.values[0];
                 rows_to_edit = {i};
                 columns_to_edit = {j};
-                Nonogram::matrix2D grid_next = solve_fast_(grid, puzzle, true, rows_to_edit, columns_to_edit);
-                if (get_progress(grid_next) >= 1){
-                    grid = grid_next;
-                    break;
+                // go back to constraint propagation
+            }
+            else{
+                for (const auto & x: {BOX, BLANK}){
+                    try{
+                        std::cout << " guess" << std::endl;
+                        Nonogram::matrix2D grid_next = grid;
+                        grid_next[i][j] = x;
+                        grid_next = solve_fast_(grid_next, puzzle, true, {i}, {j});
+                        if (get_progress(grid_next) >= 1){
+                            return grid_next;
+                        }
+                    }
+                    catch (SolverError& e){
+                    } 
                 }
             }
-            catch (SolverError& e){
-            } 
         }
     }
-
     return grid;
 }
+
+Guess probe(std::shared_ptr<Nonogram> puzzle, Nonogram::matrix2D grid){
+    /* Try many guesses and look for contradictions. 
+    * The opposite of contradictions are definitely and can be returned immediately.
+    * Else go with the guess which solves the most cells
+    */
+    std::vector< std::vector<int> > guesses = rank_solved_neighbours(grid);
+    Guess best_guess;
+    float max_solve;
+    float progress;
+    Nonogram::matrix2D grid_next;
+    for (const auto& guess: guesses){
+         int rank = guess[0]; int i = guess[1]; int j = guess[2];
+         for (const auto & x: {BOX, BLANK}){
+             try{
+                grid_next = grid;
+                grid_next[i][j] = x;
+                grid_next = solve_fast_(grid_next, puzzle, false, {i}, {j});
+             }
+             catch (SolverError& e){ // a contradiction was found :)
+                 best_guess.i = i; best_guess.j = j; best_guess.rank = rank;
+                 best_guess.values = {x ^ 3}; // the opposite color is definitely correct
+                 return best_guess;
+            }
+            progress = get_progress(grid_next);
+            if (progress >= 1.0){ //solved the puzzle
+                best_guess.i = i; best_guess.j = j; best_guess.rank = rank;
+                best_guess.values = {x}; best_guess.progress = 1.0;
+                return best_guess;
+            }
+            else if (progress > max_solve){
+                best_guess.i = i; best_guess.j = j; best_guess.rank = rank;
+                best_guess.values = {BOX, BLANK}; //either might still be correct
+            }
+         }
+        
+    }
+    return best_guess;
+}
+
 
 void fix_row(Nonogram::matrix2D& grid, std::vector<int>runs, std::set<int> &columns_to_edit, int i){
     std::vector<int> * row = &grid[i];
@@ -132,50 +184,50 @@ std::vector<int> get_column(Nonogram::matrix2D& grid, int j){
     return column;
 }
 
-// std::vector<int> apply_strategies(std::vector<int>& line, std::vector<int> &runs){
-//     std::vector<int> allowed(line.size(), EITHER);
-//     std::vector<int> allowed1 = left_rightmost_overlap(line, runs);
-//     std::vector<int> allowed2 = simple_filler(line, runs);
-//     std::vector<int> line_r = line;
-//     std::vector<int> runs_r = runs_r;
-//     std::reverse(line_r.begin(), line_r.end());
-//     std::reverse(runs_r.begin(), runs_r.end());
-//     std::vector<int> allowed3 = simple_filler(line_r, runs_r);
-//     std::reverse(allowed3.begin(), allowed3.end());
-//     for (int i{0}; i < line.size(); i ++){
-//         allowed[i] = allowed[i] & allowed1[i]; 
-//         allowed[i] = allowed[i] & allowed2[i];
-//         allowed[i] = allowed[i] & allowed3[i];
-//     }
-//     return allowed;
-// }
-
 std::vector<int> apply_strategies(std::vector<int>& line, std::vector<int> &runs){
-    /* split and apply strategies. Seems to be an error where sometimes it doesnt solve fully*/
-    std::vector<std::pair<std::vector<int>, std::vector<int>>> segments = splitter(line, runs);
-    std::vector<int> allowed_full;
-    for (auto & line_run: segments){
-        if (line_run.first.empty()){
-            continue;
-        }
-        std::vector<int> line_seg = line_run.first;
-        std::vector<int> runs_seg = line_run.second;
-        std::vector<int> allowed(line_seg.size(), EITHER);
-        std::vector<int> allowed1 = left_rightmost_overlap(line_seg, runs_seg);
-        std::vector<int> allowed2 = simple_filler(line_seg, runs_seg);
-        std::reverse(line_seg.begin(), line_seg.end());
-        std::reverse(runs_seg.begin(), runs_seg.end());
-        std::vector<int> allowed3 = simple_filler(line_seg, runs_seg);
-        std::reverse(allowed3.begin(), allowed3.end());
-        for (int i{0}; i < line_seg.size(); i ++){
-            allowed[i] = allowed[i] & allowed1[i]; 
-            allowed[i] = allowed[i] & allowed2[i];
-            allowed[i] = allowed[i] & allowed3[i];
-        }
-        allowed_full.insert(allowed_full.end(), allowed.begin(), allowed.end());
+    std::vector<int> allowed(line.size(), EITHER);
+    std::vector<int> allowed1 = left_rightmost_overlap(line, runs);
+    std::vector<int> allowed2 = simple_filler(line, runs);
+    std::vector<int> line_r = line;
+    std::vector<int> runs_r = runs_r;
+    std::reverse(line_r.begin(), line_r.end());
+    std::reverse(runs_r.begin(), runs_r.end());
+    std::vector<int> allowed3 = simple_filler(line_r, runs_r);
+    std::reverse(allowed3.begin(), allowed3.end());
+    for (int i{0}; i < line.size(); i ++){
+        allowed[i] = allowed[i] & allowed1[i]; 
+        allowed[i] = allowed[i] & allowed2[i];
+        allowed[i] = allowed[i] & allowed3[i];
     }
-    return allowed_full;
+    return allowed;
 }
+
+// std::vector<int> apply_strategies(std::vector<int>& line, std::vector<int> &runs){
+//     /* split and apply strategies. Seems to be an error where sometimes it doesnt solve fully*/
+//     std::vector<std::pair<std::vector<int>, std::vector<int>>> segments = splitter(line, runs);
+//     std::vector<int> allowed_full;
+//     for (auto & line_run: segments){
+//         if (line_run.first.empty()){
+//             continue;
+//         }
+//         std::vector<int> line_seg = line_run.first;
+//         std::vector<int> runs_seg = line_run.second;
+//         std::vector<int> allowed(line_seg.size(), EITHER);
+//         std::vector<int> allowed1 = left_rightmost_overlap(line_seg, runs_seg);
+//         std::vector<int> allowed2 = simple_filler(line_seg, runs_seg);
+//         std::reverse(line_seg.begin(), line_seg.end());
+//         std::reverse(runs_seg.begin(), runs_seg.end());
+//         std::vector<int> allowed3 = simple_filler(line_seg, runs_seg);
+//         std::reverse(allowed3.begin(), allowed3.end());
+//         for (int i{0}; i < line_seg.size(); i ++){
+//             allowed[i] = allowed[i] & allowed1[i]; 
+//             allowed[i] = allowed[i] & allowed2[i];
+//             allowed[i] = allowed[i] & allowed3[i];
+//         }
+//         allowed_full.insert(allowed_full.end(), allowed.begin(), allowed.end());
+//     }
+//     return allowed_full;
+// }
 
 bool all_unknown(std::vector<int>& line){
     for (const auto x: line){

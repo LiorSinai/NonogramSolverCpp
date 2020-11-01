@@ -1,8 +1,9 @@
 #include "guesser.h"
 
-std::vector< std::vector<int> > rank_guesses(std::vector< std::vector<int> > grid){
+std::vector< std::vector<int> > rank_solved_neighbours(std::vector< std::vector<int> > grid){
     int n_rows = grid.size();
     int n_cols = grid[0].size();
+    int min_rank = 2; 
     std::vector< std::vector<int> > rankings;
 
     std::vector< std::vector<int> > neighbours;
@@ -10,7 +11,7 @@ std::vector< std::vector<int> > rank_guesses(std::vector< std::vector<int> > gri
     int i; int j;
     int i_n; int j_n; 
     for (int idx{0}; idx < n_rows * n_cols; ++idx){
-        int i = idx/n_cols; j = idx % n_cols;
+        i = idx/n_cols; j = idx % n_cols;
         if (grid[i][j] == EITHER){
             rank = 0;
             neighbours = {{i - 1, j}, {i + 1, j}, {i, j - 1}, {i, j + 1}};
@@ -24,7 +25,9 @@ std::vector< std::vector<int> > rank_guesses(std::vector< std::vector<int> > gri
             // edges count as solved
             if ((i==0) || (i == n_rows-1)){ ++ rank;};
             if ((j==0) || (j == n_cols-1)){ ++ rank;};
-            rankings.push_back(std::vector<int>{rank, i, j});
+            if (rank >= min_rank){
+                rankings.push_back(std::vector<int>{rank, i, j});
+            }
         }
     }
     std::sort(rankings.begin(), rankings.end(),
@@ -34,7 +37,7 @@ std::vector< std::vector<int> > rank_guesses(std::vector< std::vector<int> > gri
 }
 
 
-std::vector<int> best_guess(std::vector< std::vector<int> > grid){
+std::vector<int> rank_max_neighbours(std::vector< std::vector<int> > grid){
     int n_rows = grid.size();
     int n_cols = grid[0].size();
     std::vector<int> best_guess {-1, -1, -1};
