@@ -1,3 +1,4 @@
+Rosetta Code https://rosettacode.org/wiki/Nonogram_solver
 --duck
 C BA CB BB F AE F A B 
 AB CA AE GA E C D C

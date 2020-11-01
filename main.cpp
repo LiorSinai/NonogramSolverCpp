@@ -98,6 +98,7 @@ void solve_collection(std::string file_name,
     std::string line;
     std::vector<int> runs;
     std::stringstream ss;
+    std::getline(infile, line);// skip the description
 
     while (std::getline(infile, line)){
         std::vector<std::vector<std::vector<int>>> both_runs {{}, {}};
@@ -125,10 +126,10 @@ void solve_collection(std::string file_name,
 /* for development purposes */
 // int main()
 // {   
-//    nonogram_basics();
+//    //nonogram_basics();
 //    //nfa_tester();
-//    //Runs r = read_non_file("puzzles/beach.txt");
-//    //solve_nonogram(r.runs_row, r.runs_col, true);
+//    Runs r = read_non_file("puzzles/beach.txt");
+//    solve_nonogram(r.runs_row, r.runs_col, true);
 //    //solve_small_nonograms("activity_workshop_puzzles.txt");
 
 //     return 0;
