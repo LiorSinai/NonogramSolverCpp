@@ -29,7 +29,7 @@ Algorithm
 	- first try to find find contradictions -> guesses which are obviously wrong. This will happen if there are no matches for the line matcher. The opposite guess is therefore true.
 	- otherwise save the current grid and make a binary guess. Backtrack if it is wrong. This is O(2^n), so it can very easily lead down a never ending spiral of guesses. 
 
-<div>
+<pre>
 Example by [Steve Simpson][lancaster_fast]:	<br>
 Length:   24 <br>
 Rule:     1,1,5 <br>
@@ -38,7 +38,7 @@ Broken:   >---#--         -      # < <br>
       left>000122344444444444555556< <br>
      right>000122222222222223455555< <br>
       fast>---#--+++++++++-+++####+< <br>
-</div>
+</pre>
 
 [Wolter_survey]: https://webpbn.com/survey/
 [lancaster_solver]: http://scc-forge.lancaster.ac.uk/open/nonogram/
@@ -147,6 +147,8 @@ Elephant, 15x15, solved in 0.012s
 
 
 Lost, 78x78, solved in 1.6s:
+<div>
+<pre>
 - # . . # # # . . . # # . # # . . . # # # . # # . # # . # # . . # # . # # # . # # . . # # # . # # # . # # # . . # # # . # # . # # # . . # # . . . # # . # # #<br>
 - # . # # . # # # . . # # # . # # . # # # . # # . . # # # . # # . # # # . . . # # . # # . . # # # . # # . . . # # . # # # . # # # . # # # . # # # . . # # # .<br>
 - . . . . # # . # # # . # # . # # . . . # # # . # # . . # # . . # # . # # . # # . # # # . . # # . . # # . # # # . # # . . . # # . # # . # # . . # # . . # . #<br>
@@ -221,4 +223,5 @@ Lost, 78x78, solved in 1.6s:
 - # # . . # # # # # # # # # # # # # # # # # # # # . . . . . # # # # # # # . . . . # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # . .<br>
 - . . # . # # # # # # # # # # # # # # # # # # # # . . . . # # # # # # # # . . . . # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # . . # .<br>
 - # . # . # # . # # # . # # . . # # . . # # . # # . # # . # # . . . # # # . # # # . . # # # . # # # . # # # . . # # . # # # . # # . . # # . # # # . # # # # #<br>
-
+</pre>
+</div>
