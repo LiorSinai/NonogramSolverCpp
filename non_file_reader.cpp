@@ -9,6 +9,10 @@
 Runs read_non_file(std::string file_name){
     std::string line;
     std::ifstream infile(file_name);
+    if (infile.fail()){
+        std::cout <<"reading file " << file_name << " failed";
+        throw "WARNING no file read";
+    }
 
     std::vector<std::vector<int>> runs_row{};
     std::vector<std::vector<int>> runs_col{};
@@ -59,6 +63,7 @@ Runs read_non_file(std::string file_name){
         }
     }
     if (runs_row.empty() || runs_col.empty()){
+        std::cout << "WARNING no file read" << std::endl;
         throw "WARNING no file read";
     }
     else{

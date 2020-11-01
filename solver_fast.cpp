@@ -72,9 +72,7 @@ Nonogram::matrix2D solve_fast_(Nonogram::matrix2D grid, std::shared_ptr<Nonogram
 
     float progress = get_progress(grid);
     if (!make_guess){
-        std::cout<< "constraint propagation done in " << sweeps << " sweeps" << "\n";
-        std::cout<< printf("%.3lf", 100*progress) << "% complete";
-        std::cout<< std::endl;
+        std::cout<< "constraint propagation done in " << sweeps << " sweeps" << std::endl;
     }
 
     // make guess
@@ -225,6 +223,7 @@ std::vector<int> overlap(std::vector<int>& a, std::vector<int> &b){
     /* return the overlap between 2 vectors a and b
     *  There is an overlap if the numbers in each sequence are equal
     *  Even numbers (and zero) are BLANK and odd numbers are BOX
+    *  http://scc-forge.lancaster.ac.uk/open/nonogram/ls-fast
     */
     assert(a.size() == b.size());
     std::vector<int> out (a.size(), EITHER);
