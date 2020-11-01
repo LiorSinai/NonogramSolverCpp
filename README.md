@@ -29,6 +29,7 @@ Algorithm
 	- first try to find find contradictions -> guesses which are obviously wrong. This will happen if there are no matches for the line matcher. The opposite guess is therefore true.
 	- otherwise save the current grid and make a binary guess. Backtrack if it is wrong. This is O(2^n), so it can very easily lead down a never ending spiral of guesses. 
 
+<div>
 Example by [Steve Simpson][lancaster_fast]:	<br>
 Length:   24 <br>
 Rule:     1,1,5 <br>
@@ -37,7 +38,7 @@ Broken:   >---#--         -      # < <br>
       left>000122344444444444555556< <br>
      right>000122222222222223455555< <br>
       fast>---#--+++++++++-+++####+< <br>
-
+<\div>
 
 [Wolter_survey]: https://webpbn.com/survey/
 [lancaster_solver]: http://scc-forge.lancaster.ac.uk/open/nonogram/
@@ -46,11 +47,13 @@ Broken:   >---#--         -      # < <br>
 [nfa_post]: https://liorsinai.github.io/coding/2020/10/29/finite-state-machines.html
 
 ## Input files
+
 ### Solve collection
 Solve a collection of puzzles in a single file.
 
 Format is:
 ---
+<div>
 General description (this line is skipped by the file reader) <br>
 -- puzzle title (this line is skipped by the file reader)<br>
 [run rows] <br>
@@ -58,6 +61,7 @@ General description (this line is skipped by the file reader) <br>
 -- next puzzle title (this line is skipped by the file reader) <br>
 ... <br>
 --- 
+<div>
 
 The runs are given by sets of unicode characters, with A=1, B=2 and so on. Spaces represent a line break.
 While this can work for a numbers greater than 26, these will be encoded as non-Basic Latin unicode symbols.
@@ -68,6 +72,7 @@ Based on Steve Simpsons .non format.
 Format is:
 
 ---
+<div>
 text    (this line is skipped by the file reader) <br>
 title  (this line is skipped by the file reader) <br>
 
@@ -81,6 +86,7 @@ x, x, x <br>
 columns <br>
 x, x, x <br>
 ... <br>
+<div>
 
 ---
 
