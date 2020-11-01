@@ -63,8 +63,8 @@ General description (this line is skipped by the file reader) <br>
 --- 
 </div>
 
-The runs are given by sets of unicode characters, with A=1, B=2 and so on. Spaces represent a line break.
-While this can work for a numbers greater than 26, these will be encoded as non-Basic Latin unicode symbols.
+The runs are given by sets of unicode characters, with A=1, B=2 and so on. Spaces represent a new row/column.
+This can work for a numbers greater than 26, but these will be encoded as non-Basic Latin unicode symbols.
 
 ### Solve puzzle
 Based on Steve Simpsons .non format.
@@ -92,7 +92,7 @@ x, x, x <br>
 
 ## Example solutions
 Elephant, 15x15, solved in 0.012s
-<div>
+<pre>
 -  -  -  -  -  -  03 -  -  -  01 -  -  -  -  -  -  -  -  <br> 
 -  -  -  -  -  -  03 07 -  -  05 02 -  -  01 01 01 01 -  <br>
 -  -  -  -  01 11 01 02 07 15 07 08 14 09 06 09 09 10 12 <br>
@@ -111,9 +111,11 @@ Elephant, 15x15, solved in 0.012s
 -  03 04 04 .  #  #  #  .  #  #  #  #  .  .  #  #  #  # <br>
 -  -  04 04 .  .  .  .  .  #  #  #  #  .  .  #  #  #  # <br>  
 -  -  04 04 .  .  .  .  .  #  #  #  #  .  .  #  #  #  # <br>
-</div>
+</pre>
 
 "Where there is smoke", solved in 0.154s with 12 guesses:
+<div>
+<pre>
 - -  -  -  -  -  -  -  -  -  -  01 -  -  -  -  -  -  -  -  -  -  -  -  -  - <br>
 - -  -  -  -  -  -  -  03 -  -  01 02 -  03 -  -  -  -  -  -  -  -  -  -  - <br>
 - -  -  -  -  -  -  01 03 -  01 01 01 02 01 01 -  -  -  -  -  03 -  -  -  - <br>
@@ -140,6 +142,8 @@ Elephant, 15x15, solved in 0.012s
 - -  04 01 06 01 .  #  #  #  #  .  .  #  .  .  #  #  #  #  #  #  .  .  #  .<br>
 - -  03 04 03 02 .  #  #  #  .  .  .  #  #  #  #  .  #  #  #  .  .  #  #  .<br>
 - -  -  -  04 02 .  .  .  .  .  .  .  .  .  .  .  #  #  #  #  .  #  #  .  .<br>
+</pre>
+</div>
 
 
 Lost, 78x78, solved in 1.6s:
