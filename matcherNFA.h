@@ -15,8 +15,10 @@
 #include <vector>
 #include <stack>
 #include <unordered_map>
+#include <string>
 
-#include "nonogram.h"
+#include "common_classes.h"
+#include "lru_cache.h"
 
 struct State
 {
@@ -27,20 +29,27 @@ struct State
     std::vector<int> transitions; // states that this transitions to
 };
 
+#define MAX_SIZE_CACHE 10000
+
 class NonDeterministicFiniteAutomation
 {
 public:
-    NonDeterministicFiniteAutomation(){};
+    NonDeterministicFiniteAutomation(){
+        this->cache = std::make_unique< LRUCache<std::string, Match> > (MAX_SIZE_CACHE);
+    }
     void compile(std::vector<int> pattern_); //convert a numerical pattern to a regex pattern
     Match find_match(std::vector<int>& array); //returns the left-most match
 
     std::vector<State> change_state(State &state, char in_symbol);
 
+    ~NonDeterministicFiniteAutomation(){};
+    std::unique_ptr<LRUCache<std::string, Match>> cache ; 
 private:
     std::vector<State> states;
     std::vector<int> pattern;
     int num_states{0};     // also used to determine the state ids
     bool is_compiled{false};
+    Match find_match_(std::vector<int>& array); //returns the left-most match
 
     std::vector<char> convert_pattern(std::vector<int> pattern); 
 };

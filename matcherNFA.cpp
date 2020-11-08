@@ -113,6 +113,41 @@ void NonDeterministicFiniteAutomation::compile(std::vector<int> pattern_)
 }   
 
 
+std::string line_to_string(std::vector<int>& line, std::vector<int>& pattern){
+    std::string out = "";
+    // first append the line
+    for (int & cell: line){
+        out = out.append(std::to_string(cell));
+    }
+    out.append("-");
+    // then append the pattern. Each run should take up at least 3 spaces (for uniqueness)
+    int n_zero = 3; 
+    for (int & p: pattern){
+        std::string p_str = std::to_string(p);
+        if (n_zero - p_str.length() > 0){
+            p_str = std::string(n_zero - p_str.length(), '0') + p_str; //# prepend with zeros
+        }
+        out.append(p_str);
+    }
+    return out;
+}
+
+
+Match NonDeterministicFiniteAutomation::find_match(std::vector<int>& line){
+    std::string hash_string = line_to_string(line, this->pattern); // can't hash a vector, so hash the string instead
+    Match result;
+    if (this->cache->exists(hash_string)){
+        result = this->cache->get(hash_string);
+        ++(cache->hits);
+    }
+    else {
+        result = this->find_match_(line);
+        this->cache->put(hash_string, result);
+        (this->cache->misses) += 1;
+    }
+    return result;
+}
+
 std::vector<int> extract_keys(std::unordered_map<int, std::vector<int> > const& input_map) {
   std::vector<int> keys;
   for (auto const& element : input_map) {
@@ -130,7 +165,7 @@ bool is_finished(std::vector<int>& array, int idx){
     return true;
 }
 
-Match NonDeterministicFiniteAutomation::find_match(std::vector<int>& array){
+Match NonDeterministicFiniteAutomation::find_match_(std::vector<int>& array){
     if (!this->is_compiled){
         throw "The NFA was not compiled!";
     }

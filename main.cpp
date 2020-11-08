@@ -123,18 +123,6 @@ void solve_collection(std::string file_name,
 }
 
 
-/* for development purposes */
-// int main()
-// {   
-//    //nonogram_basics();
-//    //nfa_tester();
-//    Runs r = read_non_file("puzzles/beach.txt");
-//    solve_nonogram(r.runs_row, r.runs_col, true);
-//    //solve_small_nonograms("activity_workshop_puzzles.txt");
-
-//     return 0;
-// }
-
 char* getCmdOption(char ** begin, char ** end, const std::string & option)
 {
     char ** itr = std::find(begin, end, option);
@@ -170,7 +158,7 @@ void show_help()
 
 
 /* cmd line executables */
-int main(int argc, char * argv[]){
+int main_cmd_executables(int argc, char * argv[]){
     if (cmdOptionExists(argv, argv+argc, "--help") || cmdOptionExists(argv, argv+argc, "-h") || argc==1){
         show_help();
     }
@@ -212,4 +200,17 @@ int main(int argc, char * argv[]){
             }
         }
     }
+    return 0;
+}
+
+int main(int argc, char * argv[])
+{   
+   //nonogram_basics();
+   //nfa_tester();
+   //Runs r = read_non_file("puzzles/beach.txt");
+   //solve_nonogram(r.runs_row, r.runs_col, true);
+   //solve_collection("activity_workshop_puzzles.txt");
+   main_cmd_executables(argc, argv);
+   
+   return 0;
 }

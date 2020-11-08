@@ -11,6 +11,7 @@
 
 namespace{
     int guesses{0};
+    std::unique_ptr<NonDeterministicFiniteAutomation> nfa = std::make_unique<NonDeterministicFiniteAutomation>();
 } 
 
 Nonogram::matrix2D solve_fast(std::shared_ptr<Nonogram> puzzle, bool make_guess=true){
@@ -18,6 +19,7 @@ Nonogram::matrix2D solve_fast(std::shared_ptr<Nonogram> puzzle, bool make_guess=
     Nonogram::matrix2D  grid = solve_fast_(puzzle->get_grid(), puzzle, make_guess);
     float progress = get_progress(grid);
     std::cout<< printf("%.3lf", 100*progress) << "% complete" << std::endl;
+    nfa->cache->info();
     return grid;
 }
 
@@ -119,7 +121,7 @@ Guess probe(std::shared_ptr<Nonogram> puzzle, Nonogram::matrix2D grid){
     */
     std::vector< std::vector<int> > guesses = rank_solved_neighbours(grid);
     Guess best_guess;
-    float max_solve;
+    float max_solve{0};
     float progress;
     Nonogram::matrix2D grid_next;
     for (const auto& guess: guesses){
@@ -203,7 +205,7 @@ std::vector<int> apply_strategies(std::vector<int>& line, std::vector<int> &runs
 }
 
 // std::vector<int> apply_strategies(std::vector<int>& line, std::vector<int> &runs){
-//     /* split and apply strategies. Seems to be an error where sometimes it doesnt solve fully*/
+//     /* split and apply strategies*/
 //     std::vector<std::pair<std::vector<int>, std::vector<int>>> segments = splitter(line, runs);
 //     std::vector<int> allowed_full;
 //     for (auto & line_run: segments){
@@ -252,7 +254,7 @@ std::vector<int> left_rightmost_overlap(std::vector<int>& line, std::vector<int>
         m_right = minumum_match(line_r, runs_r);
     }
     else {
-        std::unique_ptr<NonDeterministicFiniteAutomation> nfa = std::make_unique<NonDeterministicFiniteAutomation>();
+        //std::unique_ptr<NonDeterministicFiniteAutomation> nfa = std::make_unique<NonDeterministicFiniteAutomation>();
         // left most
         nfa->compile(runs);
         m_left = nfa->find_match(line);
