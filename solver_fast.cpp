@@ -11,6 +11,7 @@
 
 namespace{
     int guesses{0};
+    int probes{0};
     std::unique_ptr<NonDeterministicFiniteAutomation> nfa = std::make_unique<NonDeterministicFiniteAutomation>();
 } 
 
@@ -20,6 +21,7 @@ Nonogram::matrix2D solve_fast(std::shared_ptr<Nonogram> puzzle, bool make_guess=
     float progress = get_progress(grid);
     std::cout<< printf("%.3lf", 100*progress) << "% complete" << std::endl;
     nfa->cache->info();
+    printf("%d probes\n", probes);
     return grid;
 }
 
@@ -127,6 +129,7 @@ Guess probe(std::shared_ptr<Nonogram> puzzle, Nonogram::matrix2D grid){
     for (const auto& guess: guesses){
          int rank = guess[0]; int i = guess[1]; int j = guess[2];
          for (const auto & x: {BOX, BLANK}){
+             ++probes;
              try{
                 grid_next = grid;
                 grid_next[i][j] = x;

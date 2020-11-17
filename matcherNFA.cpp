@@ -143,7 +143,7 @@ Match NonDeterministicFiniteAutomation::find_match(std::vector<int>& line){
     else {
         result = this->find_match_(line);
         this->cache->put(hash_string, result);
-        (this->cache->misses) += 1;
+        ++(this->cache->misses);
     }
     return result;
 }

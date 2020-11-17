@@ -208,9 +208,10 @@ int main(int argc, char * argv[])
    //nonogram_basics();
    //nfa_tester();
    //Runs r = read_non_file("puzzles/beach.txt");
-   //solve_nonogram(r.runs_row, r.runs_col, true);
+   //Runs r = read_non_file("jsimlo-puzzles/03 advanced/huskie.sgriddler");
+   //solve_nonogram(r.runs_row, r.runs_col, true, false, true);
    //solve_collection("activity_workshop_puzzles.txt");
    main_cmd_executables(argc, argv);
-   
+
    return 0;
 }

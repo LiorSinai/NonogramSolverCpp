@@ -19,5 +19,7 @@ struct Runs{
 };
 
 Runs read_non_file(std::string file_name);
+Runs read_non_ext(std::string file_name);
+Runs read_sgriddler_ext(std::string file_name);
 
 # endif //NON_FILE_READER_H

@@ -48,7 +48,7 @@ private:
   public:
     int hits{0};    int misses{0};
     LRUCache(int max_size = 1000);
-      bool exists(keyType key);
+    bool exists(keyType key);
     valType get(keyType key);
     void put(keyType key, valType value);
     void info();
@@ -142,6 +142,9 @@ valType LRUCache<keyType,  valType>::get(keyType key){
     if(pageMap.find(key)==pageMap.end()) {
         throw std::out_of_range ("key not found");
     }
+    std::hash<std::string> hasher;
+    size_t hash = hasher(key);
+
     valType val = pageMap[key]->value;
 
     // move the page to front
