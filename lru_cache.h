@@ -214,7 +214,12 @@ void LRUCache<keyType, valType>::info()
 {
     float ratio = misses > 0 ? (float)hits / (float)misses : 0;
     std::cout << "LRU cache info -- "
-              << "hits/misses: " << ratio << ", hits: " << hits << ", misses: " << misses << ", size: " << size << ", max_size: " << max_size << std::endl;
+              << "hits/misses: " << ratio 
+              << ", hits: " << hits 
+              << ", misses: " << misses 
+              << ", size: " << size 
+              << ", max_size: " << max_size 
+              << std::endl;
 }
 
 #endif // LRU_CACHE_H
