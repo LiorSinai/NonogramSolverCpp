@@ -12,9 +12,10 @@ Requires the Visual Studio C++ developer tools, which can be installed wiht Visu
 
 ## With Visual Studio Code
 
-1. In Developer Command Prompt for VS run `.`. This will open Visual Studio Code.
+1. In Developer Command Prompt for VS run `.` to open Visual Studio Code.
+2. Confirm the Microsoft cl.exe is working by typing `cl` in the command prompt.
 2. Run build task: Ctrl + Shift + B
-2. Run wihtout debugging: Ctrl + F5
+2. Run without debugging: Ctrl + F5
 
 ## With the command line
 
