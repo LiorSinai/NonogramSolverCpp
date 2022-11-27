@@ -15,6 +15,8 @@
 #include <assert.h>
 #include <time.h>
 #include <ctime>
+#include <algorithm>
+#include <memory>
 
 #include "common_classes.h"
 #include "matcherNFA.h"
@@ -49,7 +51,7 @@ public:
     // useful functions
     void show_grid(matrix2D &grid, bool show_instructions=false, bool to_screen=true, bool to_file=false, std::string symbols ="x#.?-");
     std::vector<int> get_sequence(std::vector<int>& line);
-    bool is_valid_line(std::vector<int>&line, std::vector<int>&target_runs);
+    bool is_valid_line(std::vector<int>& line, std::vector<int>& target_runs);
     bool is_valid_grid(matrix2D &grid);
 };
 

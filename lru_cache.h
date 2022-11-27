@@ -14,6 +14,7 @@
 #define LRU_CACHE_H
 
 #include <unordered_map>
+#include <memory>
 
 template <typename keyType, typename  valType>
 class Node {
@@ -176,7 +177,7 @@ void LRUCache<keyType,  valType>::put(keyType key, valType value){
 
 template<class keyType, class valType> 
 LRUCache<keyType,  valType>::~LRUCache() {
-    std::unordered_map<keyType, Node<keyType, valType>*>::iterator i1;
+    typename std::unordered_map<keyType, Node<keyType, valType>*>::iterator i1;
     for(i1=pageMap.begin(); i1!=pageMap.end(); i1++) {
         delete i1->second;
     }

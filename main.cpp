@@ -130,7 +130,7 @@ char* getCmdOption(char ** begin, char ** end, const std::string & option)
     {
         return *itr;
     }
-    return "";
+    return (char*)"";
 }
 
 bool cmdOptionExists(char** begin, char** end, const std::string& option)
@@ -207,7 +207,7 @@ int main(int argc, char * argv[])
 {   
    //nonogram_basics();
    //nfa_tester();
-   //Runs r = read_non_file("puzzles/beach.txt");
+   //Runs r = read_non_file("puzzles/lost.txt");
    //Runs r = read_non_file("jsimlo-puzzles/03 advanced/huskie.sgriddler");
    //solve_nonogram(r.runs_row, r.runs_col, true, false, true);
    //solve_collection("activity_workshop_puzzles.txt");
