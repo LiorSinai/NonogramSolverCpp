@@ -2,18 +2,18 @@
  *  Created on: 23 October, 2020
  *      Author: Lior Sinai
  * Description: Tests for the NFA Matcher
- * 
+ *
  */
 
 #include "matcherNFA.h"
 #include "unit_tester.h"
 #include "Nonogram.h"
 
-
-class NFA_test: public UnitTest {
-  // create a common setup for all the tests
-  public:
-    NFA_test(const std::string& name) : UnitTest(name) {}
+class NFA_test : public UnitTest
+{
+    // create a common setup for all the tests
+public:
+    NFA_test(const std::string &name) : UnitTest(name) {}
     virtual bool setUp();
     virtual void run() = 0;
     std::unique_ptr<NonDeterministicFiniteAutomation> nfa;
@@ -23,48 +23,53 @@ class NFA_test: public UnitTest {
     Match m;
 };
 
-class BasicTest: public NFA_test{
+class BasicTest : public NFA_test
+{
 public:
-    BasicTest() : NFA_test("Basics"){}
+    BasicTest() : NFA_test("Basics") {}
     void run();
 };
 
-class LancasterExample: public NFA_test{
-  //http://scc-forge.lancaster.ac.uk/open/nonogram/ls-fast
+class LancasterExample : public NFA_test
+{
+    // http://scc-forge.lancaster.ac.uk/open/nonogram/ls-fast
 public:
-    LancasterExample() : NFA_test("LancasterExample"){}
+    LancasterExample() : NFA_test("LancasterExample") {}
     void run();
 };
 
-class LongMiddle: public NFA_test{
+class LongMiddle : public NFA_test
+{
 public:
-    LongMiddle() : NFA_test("LongMiddle"){}
+    LongMiddle() : NFA_test("LongMiddle") {}
     void run();
 };
 
-class WorstCase: public NFA_test{
+class WorstCase : public NFA_test
+{
 public:
-    WorstCase() : NFA_test("WorstCase"){}
+    WorstCase() : NFA_test("WorstCase") {}
     void run();
 };
 
-class VeryLong: public NFA_test{
+class VeryLong : public NFA_test
+{
 public:
-    VeryLong() : NFA_test("VeryLong"){}
+    VeryLong() : NFA_test("VeryLong") {}
     void run();
 };
 
-
-class EmptyArrays: public NFA_test{
+class EmptyArrays : public NFA_test
+{
 public:
-    EmptyArrays() : NFA_test("EmptyArrays"){}
+    EmptyArrays() : NFA_test("EmptyArrays") {}
     void run();
 };
 
-
-class ProblemRun: public NFA_test{
+class ProblemRun : public NFA_test
+{
 public:
     /* initial versions of the matcher failed on this*/
-    ProblemRun() : NFA_test("ProblemRun"){}
+    ProblemRun() : NFA_test("ProblemRun") {}
     void run();
 };
