@@ -165,6 +165,10 @@ bool is_finished(std::vector<int>& array, int idx){
     return true;
 }
 
+bool is_valid_transition(State state, int bit){
+    return (state.symbol == '\0' || state.symbol & bit);
+}
+
 Match NonDeterministicFiniteAutomation::find_match_(std::vector<int>& array){
     if (!this->is_compiled){
         throw "The NFA was not compiled!";
@@ -188,8 +192,7 @@ Match NonDeterministicFiniteAutomation::find_match_(std::vector<int>& array){
             std::vector<int>* match = &it->second;
             State* state = &states[state_id];
             for (int next_id: state->transitions){
-                // is this a valid transition?
-                if (this->states[next_id].symbol == '\0' || this->states[next_id].symbol & array[idx]){
+                if (is_valid_transition(this->states[next_id], array[idx])){
                     State* next_state = &states[next_id];
                     if (next_state->is_end){
                         if (is_finished(array, idx)){

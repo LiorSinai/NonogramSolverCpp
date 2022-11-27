@@ -1,5 +1,15 @@
 #include "guesser.h"
 
+
+bool in_bounds(int i, int j, int n_rows, int n_cols){
+    return ((i >= 0) && (i < n_rows) && (j >= 0) && (j < n_cols));
+}
+
+bool on_edge(int idx, int n){
+    return (idx == 0) || (idx == n- 1);
+}
+
+
 std::vector< std::vector<int> > rank_solved_neighbours(std::vector< std::vector<int> > grid){
     int n_rows = grid.size();
     int n_cols = grid[0].size();
@@ -18,13 +28,14 @@ std::vector< std::vector<int> > rank_solved_neighbours(std::vector< std::vector<
             // increase rank for solved neighbours
             for (const auto &ij: neighbours){
                 i_n = ij[0]; j_n = ij[1];
-                if (((i_n >= 0) && (i_n < n_rows)) && ((j_n >= 0) && (j_n < n_cols)) && (grid[i_n][j_n] != EITHER)){
+                if (in_bounds(i_n, j_n, n_rows, n_cols) && (grid[i_n][j_n] != EITHER)){
                     ++ rank;
                 }
             }
             // edges count as solved
-            if ((i==0) || (i == n_rows-1)){ ++ rank;};
-            if ((j==0) || (j == n_cols-1)){ ++ rank;};
+            if (on_edge(i, n_rows)){ ++ rank;};
+            if (on_edge(j, n_cols)){ ++ rank;};
+            
             if (rank >= min_rank){
                 rankings.push_back(std::vector<int>{rank, i, j});
             }
@@ -35,7 +46,6 @@ std::vector< std::vector<int> > rank_solved_neighbours(std::vector< std::vector<
 
     return rankings;
 }
-
 
 std::vector<int> rank_max_neighbours(std::vector< std::vector<int> > grid){
     int n_rows = grid.size();
@@ -54,16 +64,16 @@ std::vector<int> rank_max_neighbours(std::vector< std::vector<int> > grid){
             // increase rank for solved neighbours
             for (const auto &ij: neighbours){
                 i_n = ij[0]; j_n = ij[1];
-                if (((i_n >= 0) && (i_n < n_rows)) && ((j_n >= 0) && (j_n < n_cols)) && (grid[i_n][j_n] != EITHER)){
+                if (in_bounds(i_n, j_n, n_rows, n_cols) && (grid[i_n][j_n] != EITHER)){
                     ++ rank;
                 }
             }
             // edges count as solved
-            if ((i==0) || (i == n_rows-1)){ ++ rank;};
-            if ((j==0) || (j == n_cols-1)){ ++ rank;};
+            if (on_edge(i, n_rows)){ ++ rank;};
+            if (on_edge(j, n_cols)){ ++ rank;};
+
             if (rank > best_guess[0]){
                 best_guess = {rank, i, j};
-
             }
             if (best_guess[0] == 4){
                 break; // this is the highest ranking possible

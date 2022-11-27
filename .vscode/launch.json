@@ -8,7 +8,7 @@
             "name": "cl.exe - Build and debug active file",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${fileDirname}\\${fileBasenameNoExtension}.exe",
+            "program": "${fileDirname}\\NonogramSolver.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
