@@ -6,6 +6,26 @@ A Nonogram solver in C++. See the Wikipeida [article][nonogram_wiki].
 
 Compile and run "main --help" on the cmd line to see options.
 
+# Running 
+
+Requires the Visual Studio C++ developer tools, which can be installed wiht Visual Studio.
+
+## With Visual Studio Code
+
+1. In Developer Command Prompt for VS run `.`. This will open Visual Studio Code.
+2. Run build task: Ctrl + Shift + B
+2. Run wihtout debugging: Ctrl + F5
+
+## With the command line
+
+In Developer Command Prompt for VS:
+1. Set the variable `set "fileDirname=C:\path\to\NonogramSolverCpp"`
+2. Run:
+	```
+	cl.exe /Zi /EHsc /nologo "/Fe%fileDirname%\\main.exe" "%fileDirname%\\*.cpp"
+	```
+
+Or in the cmd with gcc:
 
 ## Algorithm 
 

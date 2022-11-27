@@ -33,6 +33,12 @@
 
 ##### VisualStudioCode
 .vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Files built by Visual Studio
 *_i.c
 *_p.c
 *_h.h
