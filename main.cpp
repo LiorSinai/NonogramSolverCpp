@@ -147,7 +147,7 @@ void show_help()
     printf("\n--test-nfa    run the tester for the matching algorithms");
     printf("\n--solve -s    solve a puzzle. Must also include a filename");
     printf("\n--solve-collection -sc solve a collection of puzzles. Must also have a corresponding filename");
-    printf("\n--filepath -f     a filename to read");
+    printf("\n--file-path -f     a filename to read");
     printf("\nsolving and display options");
     printf("\n--guess -g    make guesses if the line solver gets stuck");
     printf("\n--show-instructions -i show instructions when printing or saving");
@@ -171,7 +171,7 @@ int main_cmd_executables(int argc, char * argv[]){
     else{
         //get file name
         std::string file_name;
-        file_name = getCmdOption(argv, argv+argc, "--filepath");
+        file_name = getCmdOption(argv, argv+argc, "--file-path");
         if (file_name == ""){
             file_name = getCmdOption(argv, argv+argc, "-f");
         }
@@ -182,9 +182,9 @@ int main_cmd_executables(int argc, char * argv[]){
         bool to_screen = cmdOptionExists(argv, argv+argc, "--print") || cmdOptionExists(argv, argv+argc, "-p");
         bool to_file = cmdOptionExists(argv, argv+argc, "--to-file") || cmdOptionExists(argv, argv+argc, "-pf");
 
-        if (cmdOptionExists(argv, argv+argc, "--solve_collection") || cmdOptionExists(argv, argv+argc, "-sc")){
+        if (cmdOptionExists(argv, argv+argc, "--solve-collection") || cmdOptionExists(argv, argv+argc, "-sc")){
             if (file_name == ""){
-                printf("Must include a file with the option -f [file_name]");
+                printf("Must include a file with the option -f [--file-path]");
             }
             else{
                 solve_collection(file_name, make_guess, show_instructions, to_screen, to_file);
@@ -192,7 +192,7 @@ int main_cmd_executables(int argc, char * argv[]){
         }
         if (cmdOptionExists(argv, argv+argc, "--solve") || cmdOptionExists(argv, argv+argc, "-s")){
             if (file_name == ""){
-                printf("Must include a file with the option -f [file_name]");
+                printf("Must include a file with the option -f [--file-path]");
             }
             else{
                 Runs r = read_non_file(file_name);

@@ -8,14 +8,14 @@ A Nonogram solver in C++. See the Wikipeida [article][nonogram_wiki].
 
 Requires the Visual Studio C++ developer tools, which can be installed with the Visual Studio Installer.
 
-### Build and Run with Visual Studio Code
+### Build with Visual Studio Code
 
 1. In Developer Command Prompt for VS run `.` to open Visual Studio Code.
 2. Confirm the Microsoft C++ tool (MSVC) is working by typing `cl` in the command prompt.
 3. Run build task: Ctrl + Shift + B
 4. Run with: `NonogramSolver.exe` in the cmd. For example `NonogramSolver --solve --filepath puzzles/lost.txt`.
 
-### Build and run with the Developer Command Prompt for VS
+### Build with the Developer Command Prompt for VS
 
 In Developer Command Prompt for VS:
 1. Set the directory with `set "fileDirname=C:\path\to\NonogramSolverCpp"`
@@ -23,13 +23,18 @@ In Developer Command Prompt for VS:
 	```
 	cl.exe /Zi /EHsc /nologo "/Fe%fileDirname%\\NonogramSolver.exe" "%fileDirname%\\*.cpp"
 	```
-3. Run with: `NonogramSolver.exe`. For example `NonogramSolver --solve --filepath puzzles/lost.txt --to-file`.
 
 ### Clean up
 
 Delete .obj, .exe, .ilk and .pdb files. This can be done with: `del *.obj *.ilk *.pdb`.
 
-The NonogramSolver.exe can be run without thse
+The NonogramSolver.exe can be run without these.
+
+### Run 
+
+In the cmd navigate to the folder with the NonogramSolver.exe and type `NonogramSolver`. Examples:
+- `NonogramSolver --solve --file-path puzzles/lost.txt --to-file`
+- `NonogramSolver --solve-collection --file-path collections/various.txt --print --guess`
 
 ## Algorithm 
 
@@ -40,7 +45,7 @@ Based on ideas by [Jan Wolter][Wolter_survey] and [Steve Simpson][lancaster_solv
 Algorithm
 - Do constraint propagation with row and column sweeps.
 	- Find the left-most and right-most match for each row/column. This is done using a Nondeterministic Finite State Machine and Thompsons algorithm. This is an O(n^2) algorithm. See my blog [post][nfa_post] for more detail.
-	- Find overlaps. This is done by finding a "changer sequence". See the example below. It is made by replacing each symbol with a counter which increments everytime the symbols change e.g. from BLACK to WHITE. Counter values which are in the same index in both left and right matches are overlaps.
+	- Find overlaps. This is done by finding a "changer sequence". See the example below. It is made by replacing each symbol with a counter which increments every time the symbols change e.g. from BLACK to WHITE. Counter values which are in the same index in both left and right matches are overlaps.
 	- A simple filler which adds very simple clues that the left-right algorithm sometimes misses e.g. a white after ending a black sequence.
 - If this fails, guess and then go back to constraint propagation.
 	- First try to find contradictions -> guesses which are obviously wrong. This will happen if there are no matches for the line matcher. The opposite guess is therefore correct.
