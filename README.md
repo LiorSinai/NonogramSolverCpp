@@ -6,27 +6,26 @@ A Nonogram solver in C++. See the Wikipeida [article][nonogram_wiki].
 
 Compile and run "main --help" on the cmd line to see options.
 
-# Running 
+## Build and run 
 
-Requires the Visual Studio C++ developer tools, which can be installed wiht Visual Studio.
+Requires the Visual Studio C++ developer tools, which can be installed with the Visual Studio Installer.
 
-## With Visual Studio Code
+### Build and Run with Visual Studio Code
 
 1. In Developer Command Prompt for VS run `.` to open Visual Studio Code.
 2. Confirm the Microsoft cl.exe is working by typing `cl` in the command prompt.
-2. Run build task: Ctrl + Shift + B
-2. Run without debugging: Ctrl + F5
+3. Run build task: Ctrl + Shift + B
+4. Run with: `NonogramSolver.exe` in the cmd. For example `NonogramSolver --solve --filepath puzzles/lost.txt`.
 
-## With the command line
+### Build and run with the Developer Command Prompt for VS
 
 In Developer Command Prompt for VS:
 1. Set the variable `set "fileDirname=C:\path\to\NonogramSolverCpp"`
-2. Run:
+2. Build with:
 	```
-	cl.exe /Zi /EHsc /nologo "/Fe%fileDirname%\\main.exe" "%fileDirname%\\*.cpp"
+	cl.exe /Zi /EHsc /nologo "/Fe%fileDirname%\\NonogramSolver.exe" "%fileDirname%\\*.cpp"
 	```
-
-Or in the cmd with gcc:
+3. Run with: `NonogramSolver.exe`. For example `NonogramSolver --solve --filepath puzzles/lost.txt --to-file`.
 
 ## Algorithm 
 

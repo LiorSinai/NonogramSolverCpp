@@ -147,7 +147,7 @@ void show_help()
     printf("\n--test-nfa    run the tester for the matching algorithms");
     printf("\n--solve -s    solve a puzzle. Must also include a filename");
     printf("\n--solve-collection -sc solve a collection of puzzles. Must also have a corresponding filename");
-    printf("\n--file -f     a filename to read");
+    printf("\n--filepath -f     a filename to read");
     printf("\nsolving and display options");
     printf("\n--guess -g    make guesses if the line solver gets stuck");
     printf("\n--show-instructions -i show instructions when printing or saving");
@@ -171,7 +171,7 @@ int main_cmd_executables(int argc, char * argv[]){
     else{
         //get file name
         std::string file_name;
-        file_name = getCmdOption(argv, argv+argc, "--filename");
+        file_name = getCmdOption(argv, argv+argc, "--filepath");
         if (file_name == ""){
             file_name = getCmdOption(argv, argv+argc, "-f");
         }

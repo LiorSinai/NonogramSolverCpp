@@ -9,7 +9,7 @@
 				"/Zi",
 				"/EHsc",
 				"/nologo",
-				"/Fe${fileDirname}\\${fileBasenameNoExtension}.exe",
+				"/Fe${fileDirname}\\NonogramSolver.exe",
 				"${fileDirname}\\*.cpp"
 			],
 			"options": {
