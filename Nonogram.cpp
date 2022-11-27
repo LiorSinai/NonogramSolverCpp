@@ -94,6 +94,7 @@ void Nonogram::show_grid(matrix2D &grid, bool show_instructions, bool to_screen,
 {    
     /* Print nonogram to screen and possible a file as well*/
     std::ofstream outfile;
+    std::string file_name;
     if (to_file){
         // construct file name
         std::string base = "nonogram_";
@@ -106,7 +107,7 @@ void Nonogram::show_grid(matrix2D &grid, bool show_instructions, bool to_screen,
         timeinfo = localtime (&now);
         strftime (buffer,80,"%Y%m%d_%H%M",timeinfo);
         // open (and create) the file
-        std::string file_name = base + buffer + ext;
+        file_name = base + buffer + ext;
         outfile.open (file_name);
     }
 
@@ -150,6 +151,7 @@ void Nonogram::show_grid(matrix2D &grid, bool show_instructions, bool to_screen,
     std::cout << std::endl;
     if (to_file){
         outfile.close();
+        std::cout << "wrote solution to " <<  file_name << "\n";
     }
 }
 
@@ -184,7 +186,7 @@ bool Nonogram::is_valid_grid(matrix2D &grid)
         if (!is_valid_line(grid[i], runs_row[i])){
             return false;
         }
-    } 
+    }
     for (int j{0}; j < n_cols; j++){
         if (!this->is_valid_line(get_column(grid, j), this->runs_col[j])){
             return false;
