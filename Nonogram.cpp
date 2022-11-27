@@ -49,7 +49,7 @@ int max_length(std::vector<std::vector<int>> array)
 
 std::vector<std::vector<std::string>> Nonogram::make_box(std::vector<std::vector<int>> &grid, std::string symbols)
 {
-    /* make a box which includes the instructions for the Nonogram */
+    /* make a box which includes the runs for the Nonogram */
     std::vector<std::vector<std::string>> box;
     int row_max_length = max_length(Nonogram::runs_row);
     int col_max_length = max_length(Nonogram::runs_col);
@@ -104,7 +104,21 @@ std::vector<std::vector<std::string>> Nonogram::make_box(std::vector<std::vector
     return box;
 }
 
-void Nonogram::show_grid(matrix2D &grid, bool show_instructions, bool to_screen, bool to_file, std::string symbols)
+std::string gen_random(const int length) {
+    static const char valid_chars[] =
+        "0123456789"
+        "abcdefghijklmnopqrstuvwxyz";
+    std::string tmp;
+    tmp.reserve(length);
+
+    for (int i = 0; i < length; ++i) {
+        tmp += valid_chars[rand() % (sizeof(valid_chars) - 1)];
+    }
+    
+    return tmp;
+}
+
+void Nonogram::show_grid(matrix2D &grid, bool show_runs, bool to_screen, bool to_file, std::string symbols)
 {
     /* Print nonogram to screen and possible a file as well*/
     std::ofstream outfile;
@@ -122,11 +136,11 @@ void Nonogram::show_grid(matrix2D &grid, bool show_instructions, bool to_screen,
         timeinfo = localtime(&now);
         strftime(buffer, 80, "%Y%m%d_%H%M", timeinfo);
         // open (and create) the file
-        file_name = base + buffer + ext;
+        file_name = base + buffer + + "_" + gen_random(4) + ext;
         outfile.open(file_name);
     }
 
-    if (show_instructions)
+    if (show_runs)
     {
         std::vector<std::vector<std::string>> box = make_box(grid, symbols);
         for (int i{0}; i < box.size(); i++)

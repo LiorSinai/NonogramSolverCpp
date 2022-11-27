@@ -26,7 +26,7 @@ In Developer Command Prompt for VS:
 
 ### Clean up
 
-Delete .obj, .exe, .ilk and .pdb files. This can be done with: `del *.obj *.ilk *.pdb`.
+Delete .obj, .ilk and .pdb files. This can be done with: `del *.obj *.ilk *.pdb`.
 
 The NonogramSolver.exe can be run without these.
 
