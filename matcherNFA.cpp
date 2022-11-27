@@ -131,7 +131,7 @@ std::string line_to_string(std::vector<int> &line, std::vector<int> &pattern)
         out = out.append(std::to_string(cell));
     }
     out.append("-");
-    // then append the pattern. Each run should take up at least 3 spaces (for uniqueness)
+    // then append the pattern. Each run should have at least 3 digits (for uniqueness)
     int n_zero = 3;
     for (int &p : pattern)
     {
@@ -185,18 +185,34 @@ bool is_finished(std::vector<int> &array, int idx)
     return true;
 }
 
-bool is_valid_transition(State state, int bit)
+bool is_valid_transition(State &state, int bit)
 {
     return (state.symbol == '\0' || state.symbol & bit);
 }
 
-Match NonDeterministicFiniteAutomation::find_match_(std::vector<int> &array)
+bool is_repeated_state(State *state, State *next_state)
+{
+    return (next_state->id == state->id);
+}
+
+bool is_new_state(std::unordered_map<int, std::vector<int>> &matches, int id)
+{
+    return matches.find(id) == matches.end();
+}
+
+void fill_end_with_blanks(std::vector<int> &vec, int length)
+{
+    std::vector<int> trailing_zeros(length - vec.size(), BLANK);
+    vec.insert(vec.end(), trailing_zeros.begin(), trailing_zeros.end());
+}
+
+Match NonDeterministicFiniteAutomation::find_match_(std::vector<int> &target)
 {
     if (!this->is_compiled)
     {
         throw "The NFA was not compiled!";
     }
-    if (pattern.empty() && array.empty())
+    if (pattern.empty() && target.empty())
     {
         return Match{{}, {}, true};
     }
@@ -206,9 +222,9 @@ Match NonDeterministicFiniteAutomation::find_match_(std::vector<int> &array)
     std::unordered_map<int, std::vector<int>> new_matches; // key, value pair is state_id, match
 
     std::vector<int> empty_vec;
-    empty_vec.reserve(array.size());
+    empty_vec.reserve(target.size());
     matches.insert(std::pair<int, std::vector<int>>(0, empty_vec));
-    while (idx < (int)array.size() - 1 && !matches.empty())
+    while (idx < (int)target.size() - 1 && !matches.empty())
     {
         ++idx;
         std::unordered_map<int, std::vector<int>>::iterator it;
@@ -219,26 +235,21 @@ Match NonDeterministicFiniteAutomation::find_match_(std::vector<int> &array)
             State *state = &states[state_id];
             for (int next_id : state->transitions)
             {
-                if (is_valid_transition(this->states[next_id], array[idx]))
+                if (is_valid_transition(this->states[next_id], target[idx]))
                 {
                     State *next_state = &states[next_id];
                     if (next_state->is_end)
                     {
-                        if (is_finished(array, idx))
+                        if (is_finished(target, idx))
                         {
-                            Match m{*match, this->pattern, true};
-                            std::vector<int> *match_final = &m.match;
-                            match_final->push_back(next_state->symbol);
-                            // add final set of blanks
-                            std::vector<int> trailing_zeros(array.size() - (idx + 1), BLANK);
-                            match_final->insert(match_final->end(), trailing_zeros.begin(), trailing_zeros.end());
-                            return m;
+                            match->push_back(next_state->symbol);
+                            fill_end_with_blanks(*match, target.size());
+                            return Match{*match, this->pattern, true};
                         }
                     }
-                    // keep only the earliest repeated states in the stack
-                    else if ((next_state->id == state->id) || (new_matches.find(next_state->id) == new_matches.end()))
+                    else if (is_repeated_state(state, next_state) || is_new_state(new_matches, next_state->id))
                     {
-                        new_matches[next_state->id] = *match; // overwrite newer entries for repeats
+                        new_matches[next_state->id] = *match; // overwrite newer entries for repeats, therefore only keeping the oldest repeats
                         new_matches[next_state->id].push_back(next_state->symbol);
                     }
                 } // else skip this transition
