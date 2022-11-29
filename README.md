@@ -38,6 +38,8 @@ In the cmd navigate to the folder with the NonogramSolver.exe and type `Nonogram
 - `NonogramSolver --solve-collection --guess --file-path collections/various.txt > solutions/various.txt`
 - `NonogramSolver --solve-collection --guess --file-path collections/activity_workshop_puzzles.txt > solutions/activity_workshop_solutions.txt`
 
+Make the directory "solutions" if it doesn't exist.
+
 ## Algorithm 
 
 ### Fast solver
