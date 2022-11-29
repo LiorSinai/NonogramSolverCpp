@@ -49,7 +49,7 @@ public:
     std::vector<std::vector<int>> &get_grid() { return grid; }
 
     // useful functions
-    void show_grid(matrix2D &grid, bool show_instructions = false, bool to_screen = true, bool to_file = false, std::string symbols = "x#.?-");
+    std::string print_grid(matrix2D &grid, bool show_runs = false, std::string symbols = "x#.?-");
     std::vector<int> get_sequence(std::vector<int> &line);
     bool is_valid_line(std::vector<int> &line, std::vector<int> &target_runs);
     bool is_valid_grid(matrix2D &grid);

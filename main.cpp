@@ -7,7 +7,7 @@
 #include "matcher_tester.h"
 #include "solver_fast.h"
 #include "non_file_reader.h"
-
+#include "writer.h"
 
 void nonogram_basics()
 {
@@ -40,7 +40,9 @@ void nonogram_basics()
     //puzzle->set_grid(solution);
     puzzle->set_grid(solution2);
 
-    puzzle->show_grid(puzzle->get_grid(), true, true, false);//show_instructions, to_screen, to_file
+    bool show_runs = true;
+    std::string printed_grid = puzzle->print_grid(puzzle->get_grid(), show_runs);
+    std::cout << printed_grid << std::endl;
     std::cout << "Is complete: " << puzzle->is_valid_grid(puzzle->get_grid()) << std::endl;
 }
 
@@ -68,7 +70,7 @@ void nfa_tester(){
 }
 
 void solve_nonogram(std::vector<std::vector<int>> run_rows, std::vector<std::vector<int>> run_col, 
-                    bool make_guess=false, bool show_runs=false, bool to_screen=false, bool to_file=false)
+                    bool make_guess=false, bool show_runs=false)
 {      
     /*Solves a single nonogram puzzle. It can be of any size */
     std::shared_ptr<Nonogram> puzzle = std::make_shared<Nonogram>(run_rows, run_col);
@@ -79,14 +81,13 @@ void solve_nonogram(std::vector<std::vector<int>> run_rows, std::vector<std::vec
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); 
     puzzle->set_grid(solution);
     
-    puzzle->show_grid(puzzle->get_grid(), show_runs, to_screen, to_file);
+    std::cout << puzzle->print_grid(puzzle->get_grid(), show_runs) << std::endl;
     std::cout << "time to solve: " << (float)duration.count()/1000 << "s" << std::endl; 
     std::cout << "Is valid solution: " << puzzle->is_valid_grid(puzzle->get_grid()) << std::endl;
 }
 
-
 void solve_collection(std::string file_name, 
-                      bool make_guess=false, bool show_runs=false, bool to_screen=false, bool to_file=false)
+                      bool make_guess=false, bool show_runs=false)
 {   
     /*Solves a collection of puzzles encoded in a single file. These puzzles should be all be smaller than 30x30 */
 
@@ -96,32 +97,13 @@ void solve_collection(std::string file_name,
         return;
     }
     std::string line;
-    std::vector<int> runs;
-    std::stringstream ss;
     std::getline(infile, line);// skip the description
 
     while (std::getline(infile, line)){
-        std::vector<std::vector<std::vector<int>>> both_runs {{}, {}};
-        // Parse the rows and columns
-        for (int k{0}; k<2; ++k){
-            std::getline(infile, line); // read the next line
-            ss = std::stringstream (line); //convert to stream
-            runs = {};  
-            for (char i; ss >> i;) { 
-                runs.push_back(i -'A' + 1); 
-                if (ss.peek() == ' '){
-                    both_runs[k].push_back(runs);
-                    runs = {}; 
-                }
-            } 
-            if (!runs.empty()){
-                both_runs[k].push_back(runs);
-            }
-        }
-        solve_nonogram(both_runs[0], both_runs[1], make_guess, show_runs, to_screen, to_file);
+        Runs runs = read_non_compact_collection(infile);
+        solve_nonogram(runs.rows, runs.columns, make_guess, show_runs);
     }
 }
-
 
 char* getCmdOption(char ** begin, char ** end, const std::string & option)
 {
@@ -140,7 +122,7 @@ bool cmdOptionExists(char** begin, char** end, const std::string& option)
 
 void show_help()
 {
-    printf("Usage: nonogramSolver by Lior Sinai, 2020/10/31 ");
+    printf("Usage: NonogramSolver by Lior Sinai, 2020/10/31 ");
     printf("\n\nOptions");
     printf("\n--help -h     show usage options");
     printf("\n--test-basics solve a small 15x15 elephant puzzle");
@@ -148,14 +130,14 @@ void show_help()
     printf("\n--solve -s    solve a puzzle. Must also include a filename");
     printf("\n--solve-collection -sc solve a collection of puzzles. Must also have a corresponding filename");
     printf("\n--file-path -f     a filename to read");
+    printf("\n");
     printf("\nsolving and display options");
     printf("\n--guess -g    make guesses if the line solver gets stuck");
     printf("\n--show-runs -r show the runs (numbers) to the left and on top of the image");
-    printf("\n--print -p    print the final solution to the screen");
-    printf("\n--to-file -o print the final solution to a file (output file is nonogram_YYYYMMDD_HHMM_XXXX.txt where XXXX is a set of random letters");
+    printf("\n");
+    printf("\nTo write to a file, use > e.g. NonogramSolver --solve --file-path puzzle.txt > solution.txt");
     printf("\n");
 }
-
 
 /* cmd line executables */
 int main_cmd_executables(int argc, char * argv[]){
@@ -179,15 +161,13 @@ int main_cmd_executables(int argc, char * argv[]){
         //set solving options
         bool make_guess = cmdOptionExists(argv, argv+argc, "--guess") || cmdOptionExists(argv, argv+argc, "-g");
         bool show_runs = cmdOptionExists(argv, argv+argc, "--show-runs") || cmdOptionExists(argv, argv+argc, "-r");
-        bool to_screen = cmdOptionExists(argv, argv+argc, "--print") || cmdOptionExists(argv, argv+argc, "-p");
-        bool to_file = cmdOptionExists(argv, argv+argc, "--to-file") || cmdOptionExists(argv, argv+argc, "-o");
 
         if (cmdOptionExists(argv, argv+argc, "--solve-collection") || cmdOptionExists(argv, argv+argc, "-sc")){
             if (file_name == ""){
                 printf("Must include a file with the option -f [--file-path]");
             }
             else{
-                solve_collection(file_name, make_guess, show_runs, to_screen, to_file);
+                solve_collection(file_name, make_guess, show_runs);
             }
         }
         if (cmdOptionExists(argv, argv+argc, "--solve") || cmdOptionExists(argv, argv+argc, "-s")){
@@ -196,7 +176,7 @@ int main_cmd_executables(int argc, char * argv[]){
             }
             else{
                 Runs r = read_non_file(file_name);
-                solve_nonogram(r.runs_row, r.runs_col, make_guess, show_runs, to_screen, to_file);
+                solve_nonogram(r.rows, r.columns, make_guess, show_runs);
             }
         }
     }
@@ -209,8 +189,8 @@ int main(int argc, char * argv[])
    //nfa_tester();
    //Runs r = read_non_file("puzzles/lost.txt");
    //Runs r = read_non_file("jsimlo-puzzles/03 advanced/huskie.sgriddler");
-   //solve_nonogram(r.runs_row, r.runs_col, true, false, false, true);
-   //solve_collection("collections/activity_workshop_puzzles.txt", true, false, true, true);
+   //solve_nonogram(r.rows, r.columns, true, false);
+   //solve_collection("collections/activity_workshop_puzzles.txt", true, false);
    main_cmd_executables(argc, argv);
 
    return 0;

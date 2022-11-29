@@ -310,7 +310,6 @@ std::vector<int> left_rightmost_overlap(std::vector<int> &line, std::vector<int>
     }
     else
     {
-        // std::unique_ptr<NonDeterministicFiniteAutomation> nfa = std::make_unique<NonDeterministicFiniteAutomation>();
         //  left most
         nfa->compile(runs);
         m_left = nfa->find_match(line);

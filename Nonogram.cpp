@@ -104,42 +104,9 @@ std::vector<std::vector<std::string>> Nonogram::make_box(std::vector<std::vector
     return box;
 }
 
-std::string gen_random(const int length) {
-    static const char valid_chars[] =
-        "0123456789"
-        "abcdefghijklmnopqrstuvwxyz";
-    std::string tmp;
-    tmp.reserve(length);
-
-    for (int i = 0; i < length; ++i) {
-        tmp += valid_chars[rand() % (sizeof(valid_chars) - 1)];
-    }
-    
-    return tmp;
-}
-
-void Nonogram::show_grid(matrix2D &grid, bool show_runs, bool to_screen, bool to_file, std::string symbols)
+std::string Nonogram::print_grid(matrix2D &grid, bool show_runs, std::string symbols)
 {
-    /* Print nonogram to screen and possible a file as well*/
-    std::ofstream outfile;
-    std::string file_name;
-    if (to_file)
-    {
-        // construct file name
-        std::string base = "nonogram_";
-        std::string ext = ".txt";
-        // get current and date
-        time_t now = time(0); // current time
-        struct tm *timeinfo;
-        char buffer[80];
-        time(&now);
-        timeinfo = localtime(&now);
-        strftime(buffer, 80, "%Y%m%d_%H%M", timeinfo);
-        // open (and create) the file
-        file_name = base + buffer + + "_" + gen_random(4) + ext;
-        outfile.open(file_name);
-    }
-
+    std::string string_out = "";
     if (show_runs)
     {
         std::vector<std::vector<std::string>> box = make_box(grid, symbols);
@@ -147,23 +114,9 @@ void Nonogram::show_grid(matrix2D &grid, bool show_runs, bool to_screen, bool to
         {
             for (int j{0}; j < box[0].size(); j++)
             {
-                if (to_screen)
-                {
-                    std::cout << box[i][j] << " ";
-                }
-                if (to_file)
-                {
-                    outfile << box[i][j] << " ";
-                }
+                string_out = string_out + box[i][j]+ " ";
             }
-            if (to_screen)
-            {
-                std::cout << "\n";
-            }
-            if (to_file)
-            {
-                outfile << "\n";
-            }
+            string_out = string_out + "\n";
         }
     }
     else
@@ -172,31 +125,12 @@ void Nonogram::show_grid(matrix2D &grid, bool show_runs, bool to_screen, bool to
         {
             for (int j{0}; j < n_cols; j++)
             {
-                if (to_screen)
-                {
-                    std::cout << symbols[grid[i][j]] << " ";
-                }
-                if (to_file)
-                {
-                    outfile << symbols[grid[i][j]] << " ";
-                }
+                string_out = string_out + symbols[grid[i][j]] + " ";
             }
-            if (to_screen)
-            {
-                std::cout << "\n";
-            }
-            if (to_file)
-            {
-                outfile << "\n";
-            }
+            string_out = string_out + "\n";
         }
     }
-    std::cout << std::endl;
-    if (to_file)
-    {
-        outfile.close();
-        std::cout << "wrote solution to " << file_name << "\n";
-    }
+    return string_out;
 }
 
 std::vector<int> Nonogram::get_sequence(std::vector<int> &line)

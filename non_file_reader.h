@@ -14,12 +14,13 @@
 
 struct Runs
 {
-    std::vector<std::vector<int>> runs_row;
-    std::vector<std::vector<int>> runs_col;
+    std::vector<std::vector<int>> rows;
+    std::vector<std::vector<int>> columns;
 };
 
 Runs read_non_file(std::string file_name);
 Runs read_non_ext(std::string file_name);
 Runs read_sgriddler_ext(std::string file_name);
+Runs read_non_compact_collection(std::ifstream& infile);
 
 #endif // NON_FILE_READER_H

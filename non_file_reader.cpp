@@ -6,6 +6,20 @@
 
 #include "non_file_reader.h"
 
+
+std::vector<int> parse_line(std::string& line, char deliminator=',')
+{
+    std::stringstream ss(line);
+    std::vector<int> runs;
+    for (int x; ss >> x;)
+    {
+        runs.push_back(x);
+        if (ss.peek() == deliminator)
+            ss.ignore();
+    }
+    return runs;
+}
+
 Runs read_non_file(std::string file_name)
 {
     std::string ext = file_name.substr(file_name.find('.') + 1, file_name.length() - 1);
@@ -78,13 +92,7 @@ Runs read_non_ext(std::string file_name)
                 read_mode = 1;
                 break;
             }
-            // Parse the string
-            for (int i; ss >> i;)
-            {
-                runs.push_back(i);
-                if (ss.peek() == ',')
-                    ss.ignore();
-            }
+            runs = parse_line(line, ',');
             active_runs->push_back(runs);
             break;
         }
@@ -121,6 +129,7 @@ Runs read_sgriddler_ext(std::string file_name)
     auto mid = line.find(' ');
     int width = std::stoi(line.substr(0, mid));
     int height = std::stoi(line.substr(mid + 1, line.length() - 1));
+    std::vector<int> shape = {width, height};
 
     std::getline(infile, line); // \n
 
@@ -132,51 +141,31 @@ Runs read_sgriddler_ext(std::string file_name)
             break;
         }
     }
-    // read columns (in reverse)
-    for (int j{0}; j < width; j++)
-    {
-        std::getline(infile, line);
-        std::vector<int> runs;
-        if (line == "" || line == "\n")
+
+    std::vector<std::vector<std::vector<int>>> both_runs {{}, {}};
+    // columns then rows
+    for (int k: {0, 1}){
+        for (int j{0}; j < shape[k]; j++)
         {
-            runs = {0};
-        }
-        else
-        { // Parse the string
-            std::stringstream ss(line);
-            for (int i; ss >> i;)
+            std::getline(infile, line);
+            std::vector<int> runs;
+            if (line == "" || line == "\n")
             {
-                runs.insert(runs.begin(), i);
-                if (ss.peek() == ' ')
-                    ss.ignore();
+                runs = {0};
+            }
+            else
+            { 
+                runs = parse_line(line, ' ');
+            }
+            if (!runs.empty()){
+                std::reverse(runs.begin(), runs.end());
+                both_runs[k].push_back(runs);
             }
         }
-        runs_col.push_back(runs);
-    }
-    std::getline(infile, line); // \n
-    // read rows (in reverse)
-    for (int j{0}; j < height; j++)
-    {
         std::getline(infile, line);
-        std::vector<int> runs;
-        if (line == "" || line == "\n")
-        {
-            runs = {0};
-        }
-        else
-        { // Parse the string
-            std::stringstream ss(line);
-            for (int i; ss >> i;)
-            {
-                runs.insert(runs.begin(), i);
-                if (ss.peek() == ',')
-                    ss.ignore();
-            }
-        }
-        runs_row.push_back(runs);
     }
 
-    if (runs_row.empty() || runs_col.empty())
+    if (both_runs[0].empty() || both_runs[1].empty())
     {
         std::cout << "WARNING no runs read" << std::endl;
         throw "WARNING no file read";
@@ -186,5 +175,39 @@ Runs read_sgriddler_ext(std::string file_name)
         std::cout << "file loaded" << std::endl;
     }
 
-    return Runs{runs_row, runs_col};
+    return Runs{both_runs[1], both_runs[0]};
+}
+
+Runs read_non_compact_collection(std::ifstream& infile)
+{
+    std::string line;
+    std::stringstream ss;
+    std::vector<int> runs;
+    std::vector<std::vector<std::vector<int>>> both_runs {{}, {}};
+    for (int k: {0, 1}){
+        std::getline(infile, line); // read the next line
+        ss = std::stringstream (line); //convert to stream
+        runs = {};  
+        for (char i; ss >> i;) { 
+            runs.push_back(i -'A' + 1); 
+            if (ss.peek() == ' '){
+                both_runs[k].push_back(runs);
+                runs = {}; 
+            }
+        } 
+        if (!runs.empty()){
+            both_runs[k].push_back(runs);
+        }
+    }
+
+    if (both_runs[0].empty() || both_runs[1].empty())
+    {
+        std::cout << "WARNING no runs read" << std::endl;
+        throw "WARNING no file read";
+    }
+    else
+    {
+        std::cout << "file loaded" << std::endl;
+    }
+    return Runs{both_runs[0], both_runs[1]};
 }

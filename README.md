@@ -1,6 +1,6 @@
 # Nonogram Solver - C++
 
-A Nonogram solver in C++. See the Wikipeida [article][nonogram_wiki].
+A Nonogram solver in C++. See the Wikipedia [article][nonogram_wiki].
 
 [nonogram_wiki]: https://en.wikipedia.org/wiki/Nonogram 
 
@@ -10,7 +10,7 @@ Requires the Visual Studio C++ developer tools, which can be installed with the 
 
 ### Build with Visual Studio Code
 
-1. In Developer Command Prompt for VS run `.` to open Visual Studio Code.
+1. In Developer Command Prompt for VS run `code` to open Visual Studio Code.
 2. Confirm the Microsoft C++ tool (MSVC) is working by typing `cl` in the command prompt.
 3. Run build task: Ctrl + Shift + B
 4. Run with: `NonogramSolver.exe` in the cmd. For example `NonogramSolver --solve --filepath puzzles/lost.txt`.
@@ -33,8 +33,10 @@ The NonogramSolver.exe can be run without these.
 ### Run 
 
 In the cmd navigate to the folder with the NonogramSolver.exe and type `NonogramSolver`. Examples:
-- `NonogramSolver --solve --file-path puzzles/lost.txt --to-file`
-- `NonogramSolver --solve-collection --file-path collections/various.txt --print --guess`
+- `NonogramSolver --solve --file-path "jsimlo-puzzles\01 starters\anime.sgriddler"`
+- `NonogramSolver --solve --show-runs --file-path puzzles/lost.txt > solutions/lost.txt`
+- `NonogramSolver --solve-collection --guess --file-path collections/various.txt > solutions/various.txt`
+- `NonogramSolver --solve-collection --guess --file-path collections/activity_workshop_puzzles.txt > solutions/activity_workshop_solutions.txt`
 
 ## Algorithm 
 
