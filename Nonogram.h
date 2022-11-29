@@ -31,7 +31,7 @@ private:
     int n_cols;
 
     std::vector<int> get_column(std::vector<std::vector<int>> &grid, int j);
-    std::vector<std::vector<std::string>> make_box(std::vector<std::vector<int>> &grid, std::string symbols = "x#.?-");
+    std::vector<std::vector<std::string>> make_box(std::vector<std::vector<int>> &grid, std::string symbols = "x#.?-", int repeats = 1);
 
 public:
     /// Constructor

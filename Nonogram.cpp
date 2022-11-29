@@ -47,13 +47,23 @@ int max_length(std::vector<std::vector<int>> array)
     return length;
 }
 
-std::vector<std::vector<std::string>> Nonogram::make_box(std::vector<std::vector<int>> &grid, std::string symbols)
+std::string run_to_string(int run, int pad)
+{
+    std::string s = std::to_string(run);
+    std::string s_padded = std::string(pad - s.length(), '0') + s; // pad with zeros
+    return s_padded;
+}
+
+std::vector<std::vector<std::string>> Nonogram::make_box(std::vector<std::vector<int>> &grid, std::string symbols, int repeats)
 {
     /* make a box which includes the runs for the Nonogram */
     std::vector<std::vector<std::string>> box;
     int row_max_length = max_length(Nonogram::runs_row);
     int col_max_length = max_length(Nonogram::runs_col);
+    int npad = repeats + 1;
+    std::string dummy = std::string(repeats, symbols[DUMMY]) + " ";
 
+    // column runs
     for (int i{0}; i < col_max_length; ++i)
     {
         std::vector<std::string> row;
@@ -63,39 +73,38 @@ std::vector<std::vector<std::string>> Nonogram::make_box(std::vector<std::vector
             {
                 auto runs = runs_col[j - row_max_length];
                 int r = runs[runs.size() - (col_max_length - i)];
-                std::string s = std::to_string(r);
-                std::string s1 = std::string(2 - s.length(), '0') + s; // pad with zeros
-                row.push_back(s1);
+                std::string s = run_to_string(r, npad);
+                row.push_back(s);
             }
             else
             {
-                std::string s(1, symbols[DUMMY]);
-                row.push_back(s + " "); // push back a dummy variable
+                row.push_back(dummy); 
             }
         }
         box.push_back(row);
     }
     for (int i{0}; i < n_rows; ++i)
     {
+        // rows runs
         std::vector<std::string> row;
         for (int j{0}; j < row_max_length; ++j)
         {
             if (runs_row[i].size() >= row_max_length - j)
             {
-                int r = runs_row[i][runs_row[i].size() - (row_max_length - j)];
-                std::string s = std::to_string(r);
-                std::string s1 = std::string(2 - s.length(), '0') + s; // pad with zeros
-                row.push_back(s1);
+                auto runs = runs_row[i];
+                int r = runs[runs.size() - (row_max_length - j)];
+                std::string s = run_to_string(r, npad);
+                row.push_back(s);
             }
             else
             {
-                std::string s(1, symbols[DUMMY]);
-                row.push_back(s + " "); // push back a dummy variable
+                row.push_back(dummy); 
             }
         }
+        // grid
         for (int j{0}; j < n_cols; ++j)
         {
-            std::string s(1, symbols[grid[i][j]]);
+            std::string s(repeats, symbols[grid[i][j]]);
             row.push_back(s + " ");
         }
         box.push_back(row);
@@ -107,9 +116,10 @@ std::vector<std::vector<std::string>> Nonogram::make_box(std::vector<std::vector
 std::string Nonogram::print_grid(matrix2D &grid, bool show_runs, std::string symbols)
 {
     std::string string_out = "";
+    int repeats = 1;
     if (show_runs)
     {
-        std::vector<std::vector<std::string>> box = make_box(grid, symbols);
+        std::vector<std::vector<std::string>> box = make_box(grid, symbols, repeats);
         for (int i{0}; i < box.size(); i++)
         {
             for (int j{0}; j < box[0].size(); j++)
@@ -125,7 +135,8 @@ std::string Nonogram::print_grid(matrix2D &grid, bool show_runs, std::string sym
         {
             for (int j{0}; j < n_cols; j++)
             {
-                string_out = string_out + symbols[grid[i][j]] + " ";
+                std::string s(repeats, symbols[grid[i][j]]);
+                string_out = string_out + s + " ";
             }
             string_out = string_out + "\n";
         }
