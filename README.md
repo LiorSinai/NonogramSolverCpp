@@ -36,7 +36,7 @@ In the cmd navigate to the folder with the NonogramSolver.exe and type `Nonogram
 - `NonogramSolver --solve --file-path "jsimlo-puzzles\01 starters\anime.sgriddler"`
 - `NonogramSolver --solve --show-runs --file-path puzzles/lost.txt > solutions/lost.txt`
 - `NonogramSolver --solve-collection --guess --file-path collections/various.txt > solutions/various.txt`
-- `NonogramSolver --solve-collection --guess --file-path collections/activity_workshop_puzzles.txt > solutions/activity_workshop_solutions.txt`
+- `NonogramSolver --solve-collection --file-path collections/activity_workshop_puzzles.txt > solutions/activity_workshop_solutions.txt`
 
 Make the directory "solutions" if it doesn't exist.
 

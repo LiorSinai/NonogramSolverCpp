@@ -12,7 +12,16 @@
 
 #include "Nonogram.h"
 
-std::vector<std::vector<int>> rank_solved_neighbours(std::vector<std::vector<int>> grid);
-std::vector<int> rank_max_neighbours(std::vector<std::vector<int>> grid);
+template <typename T>
+struct Rank
+{
+    int i;
+    int j;
+    T rank;
+};
+
+std::vector<Rank<int>> rank_solved_neighbours(const std::vector<std::vector<int>> &grid);
+std::vector<Rank<int>> rank_solved_lines(const std::vector<std::vector<int>> &grid);
+Rank<int> rank_max_neighbours(const std::vector<std::vector<int>> &grid);
 
 #endif // GUESSER_H

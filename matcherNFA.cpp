@@ -195,9 +195,9 @@ bool is_repeated_state(State *state, State *next_state)
     return (next_state->id == state->id);
 }
 
-bool is_new_state(std::unordered_map<int, std::vector<int>> &matches, int id)
+bool is_new_state(std::unordered_map<int, std::vector<int>> &matches, State *next_state)
 {
-    return matches.find(id) == matches.end();
+    return matches.find(next_state->id) == matches.end();
 }
 
 void fill_end_with_blanks(std::vector<int> &vec, int length)
@@ -247,7 +247,7 @@ Match NonDeterministicFiniteAutomation::find_match_(std::vector<int> &target)
                             return Match{*match, this->pattern, true};
                         }
                     }
-                    else if (is_repeated_state(state, next_state) || is_new_state(new_matches, next_state->id))
+                    else if (is_new_state(new_matches, next_state) || is_repeated_state(state, next_state))
                     {
                         new_matches[next_state->id] = *match; // overwrite newer entries for repeats, therefore only keeping the oldest repeats
                         new_matches[next_state->id].push_back(next_state->symbol);

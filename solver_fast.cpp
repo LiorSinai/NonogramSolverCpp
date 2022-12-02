@@ -19,6 +19,10 @@ namespace
 Nonogram::matrix2D solve_fast(std::shared_ptr<Nonogram> puzzle, bool make_guess = true)
 {
     std::cout << "solving puzzle ..." << std::endl;
+    if (make_guess)
+    {
+        std::cout << "#guess progress" << std::endl;
+    }
     Nonogram::matrix2D grid = solve_fast_(puzzle->get_grid(), puzzle, make_guess);
     float progress = get_progress(grid);
     std::cout << printf("%.3lf", 100 * progress) << "% complete" << std::endl;
@@ -142,19 +146,19 @@ Nonogram::matrix2D solve_fast_(Nonogram::matrix2D grid, std::shared_ptr<Nonogram
 Guess probe(std::shared_ptr<Nonogram> puzzle, Nonogram::matrix2D grid)
 {
     /* Try many guesses and look for contradictions.
-     * The opposite of contradictions are definitely and can be returned immediately.
+     * The opposite of contradictions are definitely valid and can be returned immediately.
      * Else go with the guess which solves the most cells
      */
-    std::vector<std::vector<int>> guesses = rank_solved_neighbours(grid);
+    std::vector<Rank<int>> rankings = rank_solved_lines(grid);
     Guess best_guess;
     float max_solve{0};
     float progress;
     Nonogram::matrix2D grid_next;
-    for (const auto &guess : guesses)
+    for (const auto &guess : rankings)
     {
-        int rank = guess[0];
-        int i = guess[1];
-        int j = guess[2];
+        int rank = guess.rank;
+        int i = guess.i;
+        int j = guess.j;
         for (const auto &x : {BOX, BLANK})
         {
             ++probes;

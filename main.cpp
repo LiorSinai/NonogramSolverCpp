@@ -187,8 +187,10 @@ int main(int argc, char * argv[])
 {   
    //nonogram_basics();
    //nfa_tester();
-   //Runs r = read_non_file("puzzles/lost.txt");
-   //Runs r = read_non_file("jsimlo-puzzles/03 advanced/huskie.sgriddler");
+   //std::string path = "puzzles/lost.txt";
+   //std::string path = "jsimlo-puzzles/03 advanced/huskie.sgriddler";
+   //std::string path = "jsimlo-puzzles/04 possibilities/lighthouse.sgriddler";
+   //Runs r = read_non_file(path);
    //solve_nonogram(r.rows, r.columns, true, false);
    //solve_collection("collections/activity_workshop_puzzles.txt", true, false);
    main_cmd_executables(argc, argv);
