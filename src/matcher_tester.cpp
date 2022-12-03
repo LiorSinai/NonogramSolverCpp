@@ -56,41 +56,33 @@ void BasicTest::run()
     IS_TRUE(m.match == result);
 }
 
-void LancasterExample::run()
+std::vector<int> string_to_vec(std::string line_str)
 {
-    std::string s = "---#--         -      # ";
-    std::string s1 = "---#--#-----------#####-";
-    std::string s2 = "---#-------------#-#####";
     std::unordered_map<char, int> symbols2int;
     symbols2int['-'] = BLANK;
     symbols2int['#'] = BOX;
     symbols2int[' '] = EITHER;
-    std::unordered_map<char, int> int2symbols;
-    symbols2int[BLANK] = '-';
-    symbols2int[BOX] = '#';
-    symbols2int[EITHER] = ' ';
-
-    line = {};
-    for (char c : s)
+    std::vector<int> line = {};
+    for (char c : line_str)
     {
         line.push_back(symbols2int[c]);
     }
-    result = {};
-    for (char c : s1)
-    {
-        result.push_back(symbols2int[c]);
-    }
+    return line;
+}
+
+void LancasterExample::run()
+{
+    std::string s0 = "---#--         -      # ";
+    std::string s1 = "---#--#-----------#####-";
+    std::string s2 = "---#-------------#-#####";
+
+    line = string_to_vec(s0);
+    result = string_to_vec(s1);
     // left match
     pattern = {1, 1, 5};
     this->nfa->compile(pattern);
     m = this->nfa->find_match(line);
     IS_TRUE(m.match == result);
-    std::string ms;
-    for (int i : m.match)
-    {
-        ms += symbols2int[i];
-    }
-    IS_TRUE(ms == s1);
 
     // right match
     std::reverse(pattern.begin(), pattern.end());
@@ -98,18 +90,8 @@ void LancasterExample::run()
     std::reverse(line.begin(), line.end());
     m = this->nfa->find_match(line);
     std::reverse(m.match.begin(), m.match.end());
-    result = {};
-    for (char c : s2)
-    {
-        result.push_back(symbols2int[c]);
-    }
+    result = string_to_vec(s2);
     IS_TRUE(m.match == result);
-    std::string ms2;
-    for (int i : m.match)
-    {
-        ms2 += symbols2int[i];
-    }
-    IS_TRUE(ms2 == s2);
 }
 
 void LongMiddle::run()
