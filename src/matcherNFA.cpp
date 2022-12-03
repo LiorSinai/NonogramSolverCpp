@@ -247,14 +247,15 @@ Match NonDeterministicFiniteAutomation::find_match_(std::vector<int> &target)
                             return Match{*match, this->pattern, true};
                         }
                     }
-                    else if (is_new_state(new_matches, next_state) || is_repeated_state(state, next_state))
+                    else if (is_new_state(new_matches, next_state) 
+                        || is_repeated_state(state, next_state)) // overwrite newer entries for repeats, therefore only keeping the oldest repeats
                     {
-                        new_matches[next_state->id] = *match; // overwrite newer entries for repeats, therefore only keeping the oldest repeats
+                        new_matches[next_state->id] = *match; 
                         new_matches[next_state->id].push_back(next_state->symbol);
                     }
                 } // else skip this transition
-            }     // move to the next active state
-        }
+            } // move to the next transition
+        } // move to the next active state
         matches.swap(new_matches);
         new_matches.clear();
     }
