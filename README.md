@@ -18,7 +18,7 @@ Requires the Visual Studio C++ developer tools, which can be installed with the 
 ### Build with the Developer Command Prompt for VS
 
 In Developer Command Prompt for VS:
-1. Set the directory with `set "fileDirname=C:\path\to\NonogramSolverCpp"`
+1. Set the directory with `set "fileDirname=C:\path\to\NonogramSolverCpp\src"`
 2. Build with:
 	```
 	cl.exe /Zi /EHsc /nologo "/Fe%fileDirname%\\NonogramSolver.exe" "%fileDirname%\\*.cpp"
